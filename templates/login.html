@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Главная / ОРТ Манас</title>
+    <link rel="stylesheet" href="{% static 'dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/fonts.css' %}">
+    <style>
+        .container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+        }
+        a{
+            color: #444;
+        }
+        a:hover{
+            color: #444;
+            text-decoration: none;
+        }
+        .tour {
+            font-size: 4.8em;
+            background-color: #fff;
+            padding: 35px 15px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+        }
+        .tour:hover{
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <a href="/tour/1/">
+                    <div class="tour" id="tour-1">
+                        Тур 1
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-4">
+                <a href="/tour/2/">
+                    <div class="tour" id="tour-2">
+                        Тур 2
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-4">
+                <a href="/tour/3/">
+                    <div class="tour" id="tour-3">
+                        Тур 3
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

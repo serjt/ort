@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Главная / ОРТ Манас</title>
+    <link rel="stylesheet" href="{% static 'dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/fonts.css' %}">
+    <style>
+        .capital {
+            background-color: #faa;
+        }
+
+        .city {
+            background-color: #82b9ea;
+        }
+
+        .village {
+            background-color: #e8ea82;
+        }
+
+        .mountain {
+            background-color: #d682ea;
+        }
+
+        .top {
+            height: 50px;
+            display: flex;
+            padding: 0 25px;
+            justify-content: center;
+            align-content: center;
+            flex-direction: column;
+            font-size: 1.7em;
+        }
+
+        .quit {
+            color: #f00;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <a href="/home/" class="home"><i class="glyphicon glyphicon-home"></i> Домой</a>
+                    <a href="/add/" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Добавить</a>
+
+                </div>
+                <div class="col-xs-6 text-right">
+                    <a href="/logout/" class="quit"><i class="glyphicon glyphicon-off"></i> Выйти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div>
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#{{ subject.id }}" aria-controls="{{ subject.id }}" role="tab" data-toggle="tab">{{ subject.name }}</a></li>
+                        {% for i in subjects %}
+                        <li role="presentation"><a href="#{{ i.id }}" aria-controls="{{ i.id }}" role="tab" data-toggle="tab">{{ i.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active fade in" id="{{ subject.id }}">
+                            <div class="table-responsive">
+
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Осн.</th>
+                                        <th>Доп</th>
+                                        <th>Сумма</th>
+                                        <th>Сорт</th>
+                                        <th>Номер</th>
+                                        <th class="text-center">Действие</th>
+                                    </tr>
+                                    {% for i in abis %}
+                                        {% if i.faculty_id == subject.id %}
+                                    <tr>
+                                        <td>{{ i.ortId }}</td>
+                                        <td>{{ i.get_main }}</td>
+                                        <td>{{ i.extra_num }}</td>
+                                        <td>{{ i.summa }}</td>
+                                        {% if i.place == 'Шаар' %}
+                                        <td class="capital">Шаар</td>
+                                            {% elif i.place == 'Борбор' %}
+                                            <td class="city">Борбор</td>
+                                        {% elif i.place == 'Айыл' %}
+                                            <td class="village">Айыл</td>
+                                        {% elif i.place == 'Тоо' %}
+                                            <td class="mountain">Тоо</td>
+                                            {% endif %}
+                                        <td>{{ i.phone }}</td>
+                                        <td class="text-center">
+{#                                            <a href="/edit/{{ i.id }}/"><i class="glyphicon glyphicon-pencil"></i> Edit</a>#}
+{#                                            <a href="/delete/{{ i.id }}/" class="quit"><i class="glyphicon glyphicon-remove"></i> Delete</a>#}
+                                        </td>
+                                    </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                        {% for j in subjects %}
+                        <div role="tabpanel" class="tab-pane fade" id="{{ j.id }}">
+                        <div class="table-responsive">
+
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Осн.</th>
+                                        <th>Доп</th>
+                                        <th>Сумма</th>
+                                        <th>Сорт</th>
+                                        <th>Номер</th>
+                                        <th class="text-center">Действие</th>
+                                    </tr>
+                            {% for i in abis %}
+                                {% if i.faculty_id == j.id %}
+                                    <tr>
+                                        <td>{{ i.ortId }}</td>
+                                        <td>{{ i.get_main }}</td>
+                                        <td>{{ i.extra_num }}</td>
+                                        <td>{{ i.summa }}</td>
+                                        {% if i.place == 'Шаар' %}
+                                        <td class="capital">Шаар</td>
+                                            {% elif i.place == 'Борбор' %}
+                                            <td class="city">Борбор</td>
+                                        {% elif i.place == 'Айыл' %}
+                                            <td class="village">Айыл</td>
+                                        {% elif i.place == 'Тоо' %}
+                                            <td class="mountain">Тоо</td>
+                                            {% endif %}
+                                        <td>{{ i.phone }}</td>
+                                        <td class="text-center"><a href="/edit/{{ i.id }}/"><i class="glyphicon glyphicon-pencil"></i> Edit</a>
+                                            <a href="/delete/{{ i.id }}/" class="quit"><i class="glyphicon glyphicon-remove"></i> Delete</a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                                </table>
+                        </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'dist/js/jquery.js' %}"></script>
+    <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+    <script>
+        $('#myTabs a').click(function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        })
+    </script>
+</body>
+
+</html>

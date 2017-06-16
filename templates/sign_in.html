@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Войти / ОРТ Манас</title>
+    <link rel="stylesheet" href="{% static 'dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/fonts.css' %}">
+    <style>
+        *:focus {
+            outline: none;
+        }
+
+        input {
+            display: block;
+            border: none;
+            border-bottom: 2px #ddd solid;
+            font-family: 'Gotham Pro';
+            font-weight: 100;
+            font-size: 4.8rem;
+            margin: 25px auto;
+            width: 100%;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="text"]::-webkit-input-placeholder,
+        input[type="password"]::-webkit-input-placeholder {
+            color: #bbb;
+            transition: color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus::-webkit-input-placeholder,
+        input[type="password"]:focus::-webkit-input-placeholder {
+            color: #fff;
+            transition: color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #bbb;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border: none;
+            background-color: #eee;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #aaa;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        @media(max-width: 768px) {
+            input {
+                font-size: 3.6rem;
+                transition: font-size 0.3s ease-in-out;
+            }
+        }
+
+        @media(max-width: 776px) {
+            input {
+                font-size: 3.6rem;
+                transition: font-size 0.3s ease-in-out;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <form action="/auth/" method="post" autocomplete="off">
+                    {% csrf_token %}
+                    <input type="text" placeholder="Имя пользователя" id="username" name="username">
+                    <input type="password" placeholder="Пароль" id="password" name="password">
+                    <input type="submit" value="Войти">
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

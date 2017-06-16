@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Войти / ОРТ Манас</title>
+    <link rel="stylesheet" href="{% static 'dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/fonts.css' %}">
+    <style>
+        *:focus {
+            outline: none;
+        }
+
+        input, textarea, select {
+            display: block;
+            border: none;
+            border-bottom: 2px #ddd solid;
+            font-family: 'Gotham Pro';
+            font-weight: 100;
+            font-size: 4rem;
+            margin: 25px auto;
+            width: 100%;
+            transition: border-color 0.3s ease-in-out;
+        }
+        textarea{
+            font-size:1.7em;
+        }
+        select{
+            color: #bbb;
+        }
+        option{
+            color: #444;
+        }
+
+        input[type="text"]::-webkit-input-placeholder,
+        textarea::-webkit-input-placeholder {
+            color: #bbb;
+            transition: color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus::-webkit-input-placeholder,
+        textarea:focus::-webkit-input-placeholder {
+            color: #fff;
+            transition: color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #bbb;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border: none;
+            background-color: #88e033;
+            color: white;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #72ab3b;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .container {
+        }
+
+        @media(max-width: 768px) {
+            input {
+                font-size: 3.6rem;
+                transition: font-size 0.3s ease-in-out;
+            }
+        }
+
+        @media(max-width: 776px) {
+            input {
+                font-size: 3.6rem;
+                transition: font-size 0.3s ease-in-out;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <form action="/edit_abiturient/{{ abi.id }}/" method="post">
+                {% csrf_token %}
+                    <textarea placeholder="Штрихкод" name="code" id="code" required="required">{{ abi.barcode }}</textarea>
+                    <input type="text" name="name" placeholder="Имя" id="name" required="required" value="{{ abi.get_name }}">
+                    <input type="text" name="surname" placeholder="Фамилия" id="surname" required="required"
+                    value="{{ abi.get_surname }}">
+                    <input type="text" name="fathername" placeholder="Отчество" id="fathername"
+                           value="{{ abi.get_fathername }}" required="required">
+                    <input type="text" name="phone" placeholder="Телефон" id="phone" required="required" value="{{ abi.phone }}">
+                    <select name="tour" id="tour">
+                        <option value="{{ abi.tour.name }}">{{ abi.tour.name }}</option>
+                        <option value="1 тур">1 тур</option>
+                        <option value="2 тур">2 тур</option>
+                        <option value="3 тур">3 тур</option>
+                    </select>
+                    <select name="department" id="department">
+                        <option value="{{ abi.faculty.id }}">{{ abi.faculty.name }}</option>
+
+                        {% for i in lessons %}
+                        <option value="{{ i.id }}">{{ i.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="Редактировать">
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
