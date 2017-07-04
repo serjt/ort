@@ -1,0 +1,125 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Главная / ОРТ Манас</title>
+    <link rel="stylesheet" href="{% static 'dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/flickity.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/fonts.css' %}">
+    <style>
+        .capital {
+            background-color: #faa;
+        }
+
+        .city {
+            background-color: #82b9ea;
+        }
+
+        .village {
+            background-color: #e8ea82;
+        }
+
+        .mountain {
+            background-color: #d682ea;
+        }
+
+        .carousel-cell {
+            width: 100%;
+            padding: 0 50px;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">ОРТ Манас</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                {% for i in tours %}
+                <li><a href="/tour/{{ i.id }}/">{{ i.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="main-carousel">
+                {% for i in departments %}
+                    <div class="carousel-cell">
+                        <h2>{{ i.name }}</h2>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Осн.</th>
+                                    <th>Доп</th>
+                                    <th>Сумма</th>
+                                    <th>Сорт</th>
+                                    <th>Номер</th>
+                                </tr>
+                                {% for j in i.get_alumnis %}
+                                <tr>
+                                    <td>{{ j.ortId }}</td>
+                                    <td>{{ j.main }}</td>
+                                    <td>{{ j.extra_num }}</td>
+                                    <td>{{ j.summa }}</td>
+                                    {% if j.place == 'Шаар' %}
+                                        <td class="capital">Шаар</td>
+                                            {% elif j.place == 'Борбор' %}
+                                            <td class="city">Борбор</td>
+                                        {% elif j.place == 'Айыл' %}
+                                            <td class="village">Айыл</td>
+                                        {% elif j.place == 'Тоо' %}
+                                            <td class="mountain">Тоо</td>
+                                            {% endif %}
+                                        <td>{{ j.phone }}</td>
+                                </tr>
+                                    {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'dist/js/jquery.js' %}"></script>
+<script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'dist/js/flickity.js' %}"></script>
+<script>
+    $('.main-carousel').flickity({
+        // options
+        autoPlay: 4000
+    });
+</script>
+<script>
+    window.onload = function() {
+        setTimeout(function () {
+            location.reload()
+        }, 20000);
+     };
+</script>
+</body>
+
+</html>

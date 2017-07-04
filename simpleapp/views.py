@@ -136,3 +136,16 @@ def delete(request, p1):
     alumni = Alumni.objects.get(id=p1)
     alumni.delete()
     return redirect('/tour/')
+
+
+def home(request):
+    now = datetime.datetime.now()
+    tours = Tour.objects.filter(initial__lte=now, final__gte=now)
+    if tours.count() != 0:
+        args = {
+            'tours': Tour.objects.all(),
+            'departments': Faculty.objects.all()
+        }
+        return render_to_response('home.html', args)
+    else:
+        return render_to_response('not_found.html')

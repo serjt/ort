@@ -22,8 +22,10 @@ from diplomka import settings
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+
     # url(r'^submit/', 'simpleapp.views.submit'),
     url(r'^sign_in/', 'simpleapp.views.sign_in'),
+    url(r'^$', 'simpleapp.views.home'),
     url(r'^auth/', 'simpleapp.views.login'),
     url(r'^logout/', 'simpleapp.views.logout'),
     url(r'^add/', 'simpleapp.views.add'),

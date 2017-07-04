@@ -1,11 +1,17 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
+import datetime
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 import xlsxwriter
 from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
+from docx import Document
+from docx.enum.style import WD_STYLE_TYPE
+from docx.shared import Pt
+
 from diplomka import settings
 
 
@@ -23,6 +29,12 @@ class Faculty(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_alumnis(self):
+        now = datetime.datetime.now()
+        tour = Tour.objects.filter(initial__lte=now, final__gte=now)[0]
+        alumnis = Alumni.objects.filter(tour = tour, faculty=self)
+        return alumnis
+
 
 class Tour(models.Model):
     name = models.CharField(max_length=100)
@@ -35,8 +47,97 @@ class Tour(models.Model):
 
 class Protocol(models.Model):
     tour = models.ForeignKey(Tour)
-    protocol = models.FileField(upload_to=file_upload_to)
+    protocol = models.FileField(upload_to=file_upload_to, null=True, blank=True)
     date = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        document = Document()
+
+        obj_styles = document.styles
+        obj_charstyle = obj_styles.add_style('style', WD_STYLE_TYPE.CHARACTER)
+        obj_font = obj_charstyle.font
+        obj_font.size = Pt(12)
+        obj_font.name = 'Times New Roman'
+        dep = Faculty.objects.all()
+        for i in dep:
+            p = document.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.add_run(u'« Кабыл алууга сунушталган абитуриенттердин тизмесин бекитүү тууралуу » ',
+                      style='style').bold = True
+            p1 = document.add_paragraph()
+            p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.add_run(u'№ 3-Протокол', style='style').bold = True
+            p1.add_run(u'«__» __ ____-жыл', style='style')
+            p2 = document.add_paragraph().add_run(
+                u'___-жылдын, __-июлундагы № 2-Протокол менен бекитилген '
+                u'орундардын санына ылайык айрым категориялардын чектеринде абитуриенттерди конкурстук'
+                u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
+                u'адистиги боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:'%i.name, style='style')
+            p3 = document.add_paragraph().add_run(u'- Бишкек ш. бүтүрүүчүлөрү (бөлүнгөн орундар) ', style='style')
+            alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i)
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'негизги тест'
+            hdr_cells[2].text = u'кошумча тест'
+            hdr_cells[3].text = u'суммасы'
+            for j in alumnis.filter(place='Шаар'):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            p3 = document.add_paragraph().add_run(u'- Област. борб. ж-а чакан шаар-дын бүтүрүүчүлөрү '
+                                                  u'(бөлүнгөн орундар) ', style='style')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'негизги тест'
+            hdr_cells[2].text = u'кошумча тест'
+            hdr_cells[3].text = u'суммасы'
+            for j in alumnis.filter(place='Борбор'):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            p3 = document.add_paragraph().add_run(u'- Айылдардын бүтүрүүчүлүрү (бөлүнгөн орундар)', style='style')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'негизги тест'
+            hdr_cells[2].text = u'кошумча тест'
+            hdr_cells[3].text = u'суммасы'
+            for j in alumnis.filter(place='Айыл'):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            p3 = document.add_paragraph().add_run(u'- Бийик тоолуу райондордун бүтүрүүчүлөрү  (бөлүнгөн орундар) ', style='style')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'негизги тест'
+            hdr_cells[2].text = u'кошумча тест'
+            hdr_cells[3].text = u'суммасы'
+            for j in alumnis.filter(place='Тоо'):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            document.add_paragraph()
+            p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
+                                                  '  _______________      А.А. Кулмырзаев ', style='style')
+            document.add_page_break()
+        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.xlsx' % (self.tour.name))
+        self.protocol = '/media/protocol_%s.xlsx' % (self.tour.name)
+        super(Protocol, self).save()
 
 
 class Otchet(models.Model):
