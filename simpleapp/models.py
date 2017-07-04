@@ -387,7 +387,7 @@ class Otchet(models.Model):
             else:
                 journal_worksheet.write('G%s' % (c + 1), ' ', journal_format)
             workbook.close()
-        self.otchet = '/media/otchet_%s_%s.xlsx' % (tour.name, faculty.name)
+        self.otchet = '/media/otchet_%s_%s.xlsx' % (str(tour.id), str(faculty.id))
         super(Otchet, self).save()
 
 
