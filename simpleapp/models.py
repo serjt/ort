@@ -135,8 +135,8 @@ class Protocol(models.Model):
             p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
                                                   '  _______________      А.А. Кулмырзаев ', style='style')
             document.add_page_break()
-        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.xlsx' % (self.tour.name))
-        self.protocol = '/media/protocol_%s.xlsx' % (self.tour.name)
+        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % (self.tour.id))
+        self.protocol = '/media/protocol_%s.xlsx' % (self.tour.id)
         super(Protocol, self).save()
 
 
@@ -155,7 +155,7 @@ class Otchet(models.Model):
         aiyl = alumnis.filter(place=u'Айыл').exclude(olimpiadnik=True)
         too = alumnis.filter(place=u'Тоо').exclude(olimpiadnik=True)
         olimpiadniki = alumnis.filter(olimpiadnik=True)
-        name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s.xlsx' % (tour.name, faculty.name)
+        name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s.xlsx' % (tour.id, faculty.id)
         workbook = xlsxwriter.Workbook(name)
         worksheet = workbook.add_worksheet('Result')
         worksheet.set_column('A:A', 1.5)
