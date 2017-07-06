@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.template.context_processors import csrf
 
-from simpleapp.models import Faculty, Tour, Alumni, AlumniLesson, Lesson
+from simpleapp.models import Faculty, Tour, Alumni, AlumniLesson, Lesson, Lgotnik
 
 
 def sign_in(request):
@@ -60,31 +60,47 @@ def add(request):
     c = {}
     c.update(csrf(request))
     c['lessons'] = Faculty.objects.filter(manager=request.user)
+    c['lgotniki'] = Lgotnik.objects.all()
     return render(request, 'add.html', c)
 
 
 def add_abiturient(request):
     phone = request.POST.get('phone')
     code = request.POST.get('code')
-    department_id = request.POST.get('department')
-    atestat = request.POST.get('a')
-    lgotnik = request.POST.get('l')
-    olimpiadnik = request.POST.get('o')
     now = datetime.datetime.now()
     tour = Tour.objects.filter(initial__lte=now, final__gte=now)[0]
+    f = 0
+    if code[28] == "K":
+        return render_to_response("error.html")
+    elif code[28] == 1 and tour.name == '1 тур':
+        f = 1
+    elif code[28] == 2 and tour.name == '2 тур':
+        f = 1
+    else:
+        f = 1
+    if f == 0:
+        return render_to_response("error.html")
+
+    department_id = request.POST.get('department')
+    atestat = request.POST.get('a')
+    lgotnik = request.POST.get('lgotnik')
+    olimpiadnik = request.POST.get('o')
     abi = Alumni.objects.create()
+    if lgotnik != "no":
+        l = Lgotnik.objects.get(id=lgotnik)
+        abi.lgotnik = l
     abi.phone = phone
     abi.tour = tour
     abi.barcode = code
     if atestat is not None:
         abi.atestat = True
-    if lgotnik is not None:
-        abi.lgotnik = True
     if olimpiadnik is not None:
         abi.olimpiadnik = True
     abi.ortId = code[0:6]
     faculty = Faculty.objects.get(id=department_id)
     abi.faculty = faculty
+    if Alumni.objects.filter(faculty=faculty, tour=tour, ortId=code[0:6]).count()>0:
+        return render_to_response("error1.html")
     place = code[27]
     if place == 'R':
         abi.place = 'Шаар'

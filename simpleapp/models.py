@@ -20,11 +20,15 @@ def file_upload_to(instance, filename):
 
 
 class Faculty(models.Model):
+    class Meta:
+        verbose_name = 'Отделение'
+        verbose_name_plural = 'Отделения'
+
     name = models.CharField(max_length=100, verbose_name='Отделение')
-    lessons = models.ManyToManyField('Lesson')
-    quota = models.IntegerField(default=0)
-    filled_quota = models.IntegerField(default=0)
-    manager = models.ForeignKey(User, null=True)
+    lessons = models.ManyToManyField('Lesson', verbose_name='Предметы')
+    quota = models.IntegerField(default=0, verbose_name='Квота')
+    filled_quota = models.IntegerField(default=0, verbose_name='Осталось')
+    manager = models.ForeignKey(User, null=True, verbose_name='Админ')
 
     def __unicode__(self):
         return self.name
@@ -32,23 +36,31 @@ class Faculty(models.Model):
     def get_alumnis(self):
         now = datetime.datetime.now()
         tour = Tour.objects.filter(initial__lte=now, final__gte=now)[0]
-        alumnis = Alumni.objects.filter(tour = tour, faculty=self)
+        alumnis = Alumni.objects.filter(tour=tour, faculty=self)
         return alumnis
 
 
 class Tour(models.Model):
-    name = models.CharField(max_length=100)
-    initial = models.DateTimeField(null=True, blank=True)
-    final = models.DateTimeField(null=True, blank=True)
+    class Meta:
+        verbose_name = 'Тур'
+        verbose_name_plural = 'Туры'
+
+    name = models.CharField(max_length=100, verbose_name='Название')
+    initial = models.DateTimeField(null=True, blank=True, verbose_name='Начало')
+    final = models.DateTimeField(null=True, blank=True, verbose_name='Конец')
 
     def __unicode__(self):
         return self.name
 
 
 class Protocol(models.Model):
-    tour = models.ForeignKey(Tour)
-    protocol = models.FileField(upload_to=file_upload_to, null=True, blank=True)
-    date = models.DateTimeField(auto_now=True)
+    class Meta:
+        verbose_name = 'Протокол'
+        verbose_name_plural = 'Протоколы'
+
+    tour = models.ForeignKey(Tour, verbose_name='Тур')
+    protocol = models.FileField(upload_to=file_upload_to, null=True, blank=True, verbose_name='Файл')
+    date = models.DateField(auto_now=True, verbose_name='Дата')
 
     def save(self, *args, **kwargs):
         document = Document()
@@ -72,7 +84,7 @@ class Protocol(models.Model):
                 u'___-жылдын, __-июлундагы № 2-Протокол менен бекитилген '
                 u'орундардын санына ылайык айрым категориялардын чектеринде абитуриенттерди конкурстук'
                 u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
-                u'адистиги боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:'%i.name, style='style')
+                u'адистиги боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % i.name, style='style')
             p3 = document.add_paragraph().add_run(u'- Бишкек ш. бүтүрүүчүлөрү (бөлүнгөн орундар) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i)
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -117,7 +129,8 @@ class Protocol(models.Model):
                 row[2].text = str(j.extra_num)
                 row[3].text = str(j.summa)
 
-            p3 = document.add_paragraph().add_run(u'- Бийик тоолуу райондордун бүтүрүүчүлөрү  (бөлүнгөн орундар) ', style='style')
+            p3 = document.add_paragraph().add_run(u'- Бийик тоолуу райондордун бүтүрүүчүлөрү  (бөлүнгөн орундар) ',
+                                                  style='style')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
             hdr_cells = table.rows[0].cells
             hdr_cells[0].text = u'Иден №'
@@ -135,16 +148,20 @@ class Protocol(models.Model):
             p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
                                                   '  _______________      А.А. Кулмырзаев ', style='style')
             document.add_page_break()
-        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % (self.tour.id))
-        self.protocol = '/media/protocol_%s.xlsx' % (self.tour.id)
+        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % (self.tour.name))
+        self.protocol = '/media/protocol_%s.docx' % (self.tour.name)
         super(Protocol, self).save()
 
 
 class Otchet(models.Model):
-    tour = models.ForeignKey(Tour, null=True)
-    department = models.ForeignKey(Faculty, null=True)
-    otchet = models.FileField(upload_to=file_upload_to, blank=True, null=True)
-    date = models.DateTimeField(auto_now=True)
+    class Meta:
+        verbose_name = 'Отчет'
+        verbose_name_plural = 'Отчеты'
+
+    tour = models.ForeignKey(Tour, null=True, verbose_name='Тур')
+    department = models.ForeignKey(Faculty, null=True, verbose_name='Отделение')
+    otchet = models.FileField(upload_to=file_upload_to, blank=True, null=True, verbose_name='Файл')
+    date = models.DateField(auto_now=True, verbose_name='Дата')
 
     def save(self, *args, **kwargs):
         faculty = self.department
@@ -155,7 +172,8 @@ class Otchet(models.Model):
         aiyl = alumnis.filter(place=u'Айыл').exclude(olimpiadnik=True)
         too = alumnis.filter(place=u'Тоо').exclude(olimpiadnik=True)
         olimpiadniki = alumnis.filter(olimpiadnik=True)
-        name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s.xlsx' % (tour.id, faculty.id)
+        name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s_%s.xlsx' % (
+            tour.name, faculty.name, self.date)
         workbook = xlsxwriter.Workbook(name)
         worksheet = workbook.add_worksheet('Result')
         worksheet.set_column('A:A', 1.5)
@@ -281,17 +299,23 @@ class Otchet(models.Model):
         worksheet.merge_range('K%s:L%s' % (m + 5, m + 5), u'Бийик тоолу айм.', cell_format_name)
         worksheet.write('P%s' % (m + 5), u'Квота', cell_format_name)
         worksheet.merge_range('N%s:O%s' % (m + 5, m + 5), u'Олимпиада жең.', cell_format_name)
+        n = 0
+        k = 0
+        o = 0
+        p = 0
         if alumnis.count() != 0:
-            x = (faculty.filled_quota - olimpiadniki.count()) / (alumnis.count() - olimpiadniki.count())
-            n = shaar.count() * x
-            k = borbor.count() * x
-            o = aiyl.count() * x
-            p = too.count() * x
-        else:
-            n = 0
-            k = 0
-            o = 0
-            p = 0
+            if shaar.count() != 0:
+                n = shaar.count() * (faculty.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+            if borbor.count() != 0:
+                k = borbor.count() * (faculty.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+            if aiyl.count() != 0:
+                o = aiyl.count() * (faculty.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+            if too.count() != 0:
+                p = too.count() * (faculty.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
         worksheet.write('D%s' % (m + 6), n, cell_format_name)
         worksheet.merge_range('B%s:C%s' % (m + 6, m + 6), shaar.count(), cell_format_name)
         worksheet.write('G%s' % (m + 6), k, cell_format_name)
@@ -300,8 +324,8 @@ class Otchet(models.Model):
         worksheet.merge_range('H%s:I%s' % (m + 6, m + 6), aiyl.count(), cell_format_name)
         worksheet.write('M%s' % (m + 6), p, cell_format_name)
         worksheet.merge_range('K%s:L%s' % (m + 6, m + 6), too.count(), cell_format_name)
-        worksheet.write('P%s' % (m + 6), 0, cell_format_name)
-        worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), 0, cell_format_name)
+        worksheet.write('P%s' % (m + 6), olimpiadniki.count(), cell_format_name)
+        worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), olimpiadniki.count(), cell_format_name)
         barcode_worksheet = workbook.add_worksheet('Barcode')
         barcode_worksheet.set_column('A:A', 1.5)
         barcode_worksheet.set_column('B:B', 28)
@@ -333,9 +357,9 @@ class Otchet(models.Model):
             barcode_worksheet.write('C%s' % count, i.ortId, barcode_format)
             if i.place == u'Шаар':
                 barcode_worksheet.write('D%s' % count, u'К', format)
-            if i.place == u'Борбор':
+            elif i.place == u'Борбор':
                 barcode_worksheet.write('D%s' % count, u'С', format_blue)
-            if i.place == u'Айыл':
+            elif i.place == u'Айыл':
                 barcode_worksheet.write('D%s' % count, u'Ж', format_yellow)
             else:
                 barcode_worksheet.write('D%s' % count, u'Ф', format_purple)
@@ -376,9 +400,9 @@ class Otchet(models.Model):
             journal_worksheet.write('E%s' % (c + 1), i.summa, journal_format)
             if i.place == u'Шаар':
                 journal_worksheet.write('F%s' % (c + 1), u'К', format)
-            if i.place == u'Борбор':
+            elif i.place == u'Борбор':
                 journal_worksheet.write('F%s' % (c + 1), u'С', format_blue)
-            if i.place == u'Айыл':
+            elif i.place == u'Айыл':
                 journal_worksheet.write('F%s' % (c + 1), u'Ж', format_yellow)
             else:
                 journal_worksheet.write('F%s' % (c + 1), u'Ф', format_purple)
@@ -386,13 +410,31 @@ class Otchet(models.Model):
                 journal_worksheet.write('G%s' % (c + 1), '*', journal_format)
             else:
                 journal_worksheet.write('G%s' % (c + 1), ' ', journal_format)
-            workbook.close()
-        self.otchet = '/media/otchet_%s_%s.xlsx' % (str(tour.id), str(faculty.id))
+        workbook.close()
+        self.otchet = '/media/otchet_%s_%s_%s.xlsx' % (tour.name, faculty.name, self.date)
         super(Otchet, self).save()
 
 
 class Lesson(models.Model):
-    name = models.CharField(max_length=100)
+    class Meta:
+        verbose_name = 'предмет'
+        verbose_name_plural = 'предметы'
+
+    name = models.CharField(max_length=100, verbose_name='Название')
+
+    def __unicode__(self):
+        return self.name
+
+
+class Lgotnik(models.Model):
+    class Meta:
+        verbose_name = 'Льготник'
+        verbose_name_plural = 'Льготники'
+
+    name = models.CharField(max_length=100, verbose_name='Название')
+    quota = models.IntegerField(default=0, verbose_name='Квота')
+    filled_quota = models.IntegerField(default=0, verbose_name='Осталось')
+    date = models.DateField(auto_now=True, verbose_name='Дата')
 
     def __unicode__(self):
         return self.name
@@ -400,7 +442,9 @@ class Lesson(models.Model):
 
 class Alumni(models.Model):
     class Meta:
-        ordering = ['summa']
+        ordering = ['-summa']
+        verbose_name = 'абитуриента'
+        verbose_name_plural = 'абитуриенты'
 
     choices = (
         ('Шаар', 'Шаар'),
@@ -409,21 +453,22 @@ class Alumni(models.Model):
         ('Тоо', 'Тоо'),
     )
     barcode = models.CharField(max_length=100, null=True)
-    ortId = models.CharField(max_length=100)
-    tour = models.ForeignKey(Tour, null=True)
-    faculty = models.ForeignKey(Faculty, null=True)
-    place = models.CharField(max_length=100, null=True, choices=choices)
-    extra_num = models.IntegerField(default=0)
-    main = models.IntegerField(default=0)
-    atestat = models.BooleanField(default=False)
-    lgotnik = models.BooleanField(default=False)
-    olimpiadnik = models.BooleanField(default=False)
+    ortId = models.CharField(max_length=100, verbose_name='ID')
+    tour = models.ForeignKey(Tour, null=True, verbose_name='Тур')
+    faculty = models.ForeignKey(Faculty, null=True, verbose_name='Отделение')
+    place = models.CharField(max_length=100, null=True, choices=choices, verbose_name='Местность')
+    extra_num = models.IntegerField(default=0, verbose_name='Доп.')
+    main = models.IntegerField(default=0, verbose_name='Осн.')
+    atestat = models.BooleanField(default=False, verbose_name='Красный аттестат')
+    lgotnik = models.ForeignKey(Lgotnik, blank=True, null=True, verbose_name='Льготник')
+    olimpiadnik = models.BooleanField(default=False, verbose_name='Олимпиадник')
     passed = models.BooleanField(default=False)
-    summa = models.IntegerField(default=0)
-    phone = models.CharField(max_length=100, null=True)
+    summa = models.IntegerField(default=0, verbose_name='Сумма')
+    phone = models.CharField(max_length=100, null=True, verbose_name='Номер')
+    date = models.DateTimeField(auto_now=True,verbose_name='Дата')
 
-    def __unicode__(self):
-        return self.barcode
+    # def __unicode__(self):
+    #     return self.barcode
 
     def get_main(self):
         less = Lesson.objects.get(name='Основной')
@@ -432,9 +477,9 @@ class Alumni(models.Model):
 
 
 class AlumniLesson(models.Model):
-    alumni = models.ForeignKey(Alumni, null=True)
-    lesson = models.ForeignKey(Lesson, null=True)
-    grade = models.IntegerField(default=0)
+    alumni = models.ForeignKey(Alumni, null=True,verbose_name = 'абитуриент')
+    lesson = models.ForeignKey(Lesson, null=True,verbose_name = 'предмет')
+    grade = models.IntegerField(default=0, verbose_name='Балл')
 
     def __unicode__(self):
         return self.lesson.name
