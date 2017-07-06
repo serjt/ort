@@ -89,6 +89,7 @@ def add_abiturient(request):
     if lgotnik != "no":
         l = Lgotnik.objects.get(id=lgotnik)
         abi.lgotnik = l
+
     abi.phone = phone
     abi.tour = tour
     abi.barcode = code
