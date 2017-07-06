@@ -92,8 +92,6 @@ def add_abiturient(request):
     abi.phone = phone
     abi.tour = tour
     abi.barcode = code
-    if atestat is not None:
-        abi.atestat = True
     if olimpiadnik is not None:
         abi.olimpiadnik = True
     abi.ortId = code[0:6]
@@ -143,6 +141,9 @@ def add_abiturient(request):
             alumnilesson.save()
     abi.extra_num = extra
     abi.summa = abi.main + extra
+    if atestat is not None:
+        abi.atestat = True
+        abi.summa += 20
     abi.save()
     return redirect('/tour/')
 
