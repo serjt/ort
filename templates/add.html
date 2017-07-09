@@ -55,7 +55,7 @@
             transition: border-color 0.3s ease-in-out;
         }
 
-        input[type="submit"] {
+        button{
             width: 100%;
             padding-top: 10px;
             padding-bottom: 10px;
@@ -64,10 +64,24 @@
             color: white;
         }
 
-        input[type="submit"]:hover {
+        button {
             background-color: #72ab3b;
             transition: background-color 0.3s ease-in-out;
         }
+
+        {#        input[type="submit"] {#}
+        {#            width: 100%;#}
+        {#            padding-top: 10px;#}
+        {#            padding-bottom: 10px;#}
+        {#            border: none;#}
+        {#            background-color: #88e033;#}
+        {#            color: white;#}
+        {#        }#}
+        {##}
+        {#        input[type="submit"]:hover {#}
+        {#            background-color: #72ab3b;#}
+        {#            transition: background-color 0.3s ease-in-out;#}
+        {#        }#}
 
         .container {
         }
@@ -84,6 +98,12 @@
                 font-size: 3.6rem;
                 transition: font-size 0.3s ease-in-out;
             }
+        }
+        .modal p{
+            border-bottom: 1px solid black;
+        }
+        .modal-dialog {
+            width: 430px !important;
         }
     </style>
 </head>
@@ -102,9 +122,9 @@
                         <option value="{{ i.id }}">{{ i.name }}</option>
                     {% endfor %}
                 </select>
-{#                <div class="checkbox">#}
-{#                    <label><input type="checkbox" value="a" id="a" name="a">Красный атестат</label>#}
-{#                </div>#}
+                {#                <div class="checkbox">#}
+                {#                    <label><input type="checkbox" value="a" id="a" name="a">Красный атестат</label>#}
+                {#                </div>#}
                 <div class="checkbox">
                     <label><input type="checkbox" value="" id="o" name="o">Олимпиадник</label>
                 </div>
@@ -113,11 +133,100 @@
                         <option value="{{ i.id }}">{{ i.name }}</option>
                     {% endfor %}
                 </select>
-                <input type="submit" value="Добавить">
+                <button type="button" data-toggle="modal" data-target="#myModal">
+                    Добавить
+                </button>
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Данные</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <p>ID: </p>
+                                        <p>Телефон: </p>
+                                        <p>Тип льготы: </p>
+                                        <p>Олимпиадник: </p>
+                                        <p>Отделение: </p>
+                                        <p>Основной балл: </p>
+                                        <p>Биология: </p>
+                                        <p>История: </p>
+                                        <p>Химия: </p>
+                                        <p>Физика: </p>
+                                        <p>Английский: </p>
+                                        <p>Математика: </p>
+                                        <p>Тур: </p>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <p class="text-right" id="result-id"></p>
+                                        <p class="text-right" id="result-phone"></p>
+                                        <p class="text-right" id="result-lgota"></p>
+                                        <p class="text-right" id="result-olimp"></p>
+                                        <p class="text-right" id="result-dep"></p>
+                                        <p class="text-right" id="result-main"></p>
+                                        <p class="text-right" id="result-bio"></p>
+                                        <p class="text-right" id="result-his"></p>
+                                        <p class="text-right" id="result-chem"></p>
+                                        <p class="text-right" id="result-phys"></p>
+                                        <p class="text-right" id="result-eng"></p>
+                                        <p class="text-right" id="result-math"></p>
+                                        <p class="text-right" id="result-tour"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" value="Добавить">
+                                {#                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>#}
+                                {#                                <button type="button" class="btn btn-primary">Save changes</button>#}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
             </form>
         </div>
     </div>
 </div>
+
+<script type="text/javascript" src="{% static 'dist/js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+<script>
+    $('#myModal').on('shown.bs.modal', function () {
+        $('#result-id').text($('textarea#code').val().substring(0,6));
+        $('#result-phone').text($('input#phone').val());
+        $('#result-lgota').text($("#lgotnik option:selected").text());
+        $('#result-olimp').text($('#o').is(":checked"));
+        $('#result-dep').text($("#department option:selected").text());
+        $('#result-main').text(parseInt($('textarea#code').val().substring(6,9)));
+        $('#result-bio').text(parseInt($('textarea#code').val().substring(9,12)));
+        $('#result-his').text(parseInt($('textarea#code').val().substring(12,15)));
+        $('#result-chem').text(parseInt($('textarea#code').val().substring(15,18)));
+        $('#result-phys').text(parseInt($('textarea#code').val().substring(18,21)));
+        $('#result-eng').text(parseInt($('textarea#code').val().substring(21,24)));
+        $('#result-math').text(parseInt($('textarea#code').val().substring(24,27)));
+        $('#result-tour').text($('textarea#code').val().substring(28,29));
+        if ($('textarea#code').val().substring(27,28) == "B"){
+            $('.modal-content').css('background-color', '#8bceef')
+        }
+        else if ($('textarea#code').val().substring(27,28) == "R"){
+            $('.modal-content').css('background-color', '#ef8c8b')
+        }
+        else if ($('textarea#code').val().substring(27,28) == "Y"){
+            $('.modal-content').css('background-color', '#edef8b')
+        }
+        else if ($('textarea#code').val().substring(27,28) == "P"){
+            $('.modal-content').css('background-color', '#c58bef')
+        }
+        $('#myInput').focus();
+
+    })
+
+
+</script>
 
 </body>
 
