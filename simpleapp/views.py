@@ -82,7 +82,7 @@ def add_abiturient(request):
         return render_to_response("error.html")
 
     department_id = request.POST.get('department')
-    atestat = request.POST.get('a')
+    # atestat = request.POST.get('a')
     lgotnik = request.POST.get('lgotnik')
     olimpiadnik = request.POST.get('o')
     abi = Alumni.objects.create()
@@ -142,9 +142,9 @@ def add_abiturient(request):
             alumnilesson.save()
     abi.extra_num = extra
     abi.summa = abi.main + extra
-    if atestat is not None:
-        abi.atestat = True
-        abi.summa += 20
+    # if atestat is not None:
+    #     abi.atestat = True
+    #     abi.summa += 20
     abi.save()
     return redirect('/tour/')
 

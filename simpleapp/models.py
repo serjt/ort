@@ -442,7 +442,7 @@ class Lgotnik(models.Model):
 
 class Alumni(models.Model):
     class Meta:
-        ordering = ['-summa']
+        ordering = ['-date']
         verbose_name = 'абитуриента'
         verbose_name_plural = 'абитуриенты'
 
