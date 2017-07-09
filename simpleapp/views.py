@@ -41,8 +41,8 @@ def all_tables(request):
     tours = Tour.objects.filter(initial__lte=now, final__gte=now)
     if tours.count() > 0:
         context = {
-            'subject': Faculty.objects.filter(manager=user).first(),
-            'subjects': Faculty.objects.filter(manager=user)[1:],
+            'subject': Faculty.objects.filter(manager=user, filled_quota__gt=0).first(),
+            'subjects': Faculty.objects.filter(manager=user, filled_quota__gt=0)[1:],
             'abis': Alumni.objects.filter(tour=tours[0], faculty__manager=user)
         }
         return render_to_response('all_tables.html', context)
@@ -59,7 +59,7 @@ def logout(request):
 def add(request):
     c = {}
     c.update(csrf(request))
-    c['lessons'] = Faculty.objects.filter(manager=request.user)
+    c['lessons'] = Faculty.objects.filter(manager=request.user, filled_quota__gt=0)
     c['lgotniki'] = Lgotnik.objects.all()
     return render(request, 'add.html', c)
 
@@ -162,7 +162,7 @@ def home(request):
     if tours.count() != 0:
         args = {
             'tours': Tour.objects.all(),
-            'departments': Faculty.objects.all()
+            'departments': Faculty.objects.filter(filled_quota__gt=0)
         }
         return render_to_response('home.html', args)
     else:
