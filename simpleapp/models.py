@@ -166,7 +166,7 @@ class Otchet(models.Model):
     def save(self, *args, **kwargs):
         faculty = self.department
         tour = self.tour
-        alumnis = Alumni.objects.filter(faculty=faculty, tour=tour)
+        alumnis = Alumni.objects.filter(faculty=faculty, tour=tour, lgotnik__isnull=True)
         shaar = alumnis.filter(place=u'Шаар').exclude(olimpiadnik=True)
         borbor = alumnis.filter(place=u'Борбор').exclude(olimpiadnik=True)
         aiyl = alumnis.filter(place=u'Айыл').exclude(olimpiadnik=True)
@@ -465,7 +465,7 @@ class Alumni(models.Model):
     passed = models.BooleanField(default=False)
     summa = models.IntegerField(default=0, verbose_name='Сумма')
     phone = models.CharField(max_length=100, null=True, verbose_name='Номер')
-    date = models.DateTimeField(auto_now=True,verbose_name='Дата')
+    date = models.DateTimeField(auto_now=True, verbose_name='Дата')
 
     # def __unicode__(self):
     #     return self.barcode
@@ -477,9 +477,271 @@ class Alumni(models.Model):
 
 
 class AlumniLesson(models.Model):
-    alumni = models.ForeignKey(Alumni, null=True,verbose_name = 'абитуриент')
-    lesson = models.ForeignKey(Lesson, null=True,verbose_name = 'предмет')
+    alumni = models.ForeignKey(Alumni, null=True, verbose_name='абитуриент')
+    lesson = models.ForeignKey(Lesson, null=True, verbose_name='предмет')
     grade = models.IntegerField(default=0, verbose_name='Балл')
 
     def __unicode__(self):
         return self.lesson.name
+
+
+class OtchetLgotnik(models.Model):
+    class Meta:
+        verbose_name = 'Отчет(Льготник)'
+        verbose_name_plural = 'Отчет(Льготники)'
+    tour = models.ForeignKey(Tour, verbose_name="Тур")
+    lgotnik = models.ForeignKey(Lgotnik, verbose_name='Льготник')
+    file = models.FileField(upload_to=file_upload_to, blank=True, null=True, verbose_name='Файл')
+    date = models.DateField(auto_now=True, verbose_name='Дата')
+
+    def save(self, *args, **kwargs):
+        tour = self.tour
+        lgotnik = self.lgotnik
+        alumnis = Alumni.objects.filter(tour=tour, lgotnik=lgotnik)
+        shaar = alumnis.filter(place=u'Шаар').exclude(olimpiadnik=True)
+        borbor = alumnis.filter(place=u'Борбор').exclude(olimpiadnik=True)
+        aiyl = alumnis.filter(place=u'Айыл').exclude(olimpiadnik=True)
+        too = alumnis.filter(place=u'Тоо').exclude(olimpiadnik=True)
+        olimpiadniki = alumnis.filter(olimpiadnik=True)
+        name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s_%s.xlsx' % (
+            tour.name, lgotnik.name, self.date)
+        workbook = xlsxwriter.Workbook(name)
+        worksheet = workbook.add_worksheet('Result')
+        worksheet.set_column('A:A', 1.5)
+        worksheet.set_column('B:Z', 5)
+        format = workbook.add_format({'bg_color': 'red',
+                                      'align': 'center',
+                                      'valign': 'vcenter',
+                                      'font_size': 7,
+                                      'border': 1})
+        worksheet.set_default_row(11)
+        cell_format = workbook.add_format({'align': 'center',
+                                           'valign': 'vcenter',
+                                           'font_size': 7,
+                                           'border': 1})
+        cell_format_name = workbook.add_format({'align': 'center',
+                                                'valign': 'vcenter',
+                                                'font_size': 7,
+                                                'border': 1})
+        worksheet.merge_range('A1:K1', u"%s багыты боюнча" % lgotnik.name, cell_format)
+        worksheet.merge_range('A2:K2', u"%sда катышкандардын тизмеси" % tour.name, cell_format)
+        worksheet.merge_range('A3:K3', u"Кабыл алуу планы: %s" % lgotnik.filled_quota, cell_format)
+        worksheet.merge_range('A5:A6', 'N', cell_format)
+        worksheet.merge_range('B5:E5', u'Шаар', format)
+        format_blue = workbook.add_format({'bg_color': 'blue',
+                                           'align': 'center',
+                                           'valign': 'vcenter',
+                                           'font_size': 7,
+                                           'border': 1})
+        worksheet.merge_range('F5:I5', u'Кичи шаар жана обл. борборлор', format_blue)
+        format_yellow = workbook.add_format({'bg_color': 'yellow',
+                                             'align': 'center',
+                                             'valign': 'vcenter',
+                                             'font_size': 7,
+                                             'border': 1})
+        worksheet.merge_range('J5:M5', u'Айыл жергеси', format_yellow)
+        format_purple = workbook.add_format({'bg_color': 'purple',
+                                             'align': 'center',
+                                             'valign': 'vcenter',
+                                             'font_size': 7,
+                                             'border': 1})
+        worksheet.merge_range('N5:Q5', u'Бийик тоолу аймак', format_purple)
+        format_white = workbook.add_format({'align': 'center',
+                                            'valign': 'vcenter',
+                                            'font_size': 7,
+                                            'border': 1})
+        worksheet.merge_range('R5:U5', u'Олимпиада жеңүүчүлөрү', format_white)
+        worksheet.write('B6', u'Иден', cell_format_name)
+        worksheet.write('C6', u'Негизги', cell_format_name)
+        worksheet.write('D6', u'Кошумча', cell_format_name)
+        worksheet.write('E6', u'Суммасы', cell_format_name)
+        worksheet.write('F6', u'Иден', cell_format_name)
+        worksheet.write('G6', u'Негизги', cell_format_name)
+        worksheet.write('H6', u'Кошумча', cell_format_name)
+        worksheet.write('I6', u'Суммасы', cell_format_name)
+        worksheet.write('J6', u'Иден', cell_format_name)
+        worksheet.write('K6', u'Негизги', cell_format_name)
+        worksheet.write('L6', u'Кошумча', cell_format_name)
+        worksheet.write('M6', u'Суммасы', cell_format_name)
+        worksheet.write('N6', u'Иден', cell_format_name)
+        worksheet.write('O6', u'Негизги', cell_format_name)
+        worksheet.write('P6', u'Кошумча', cell_format_name)
+        worksheet.write('Q6', u'Суммасы', cell_format_name)
+        worksheet.write('R6', u'Иден', cell_format_name)
+        worksheet.write('S6', u'Негизги', cell_format_name)
+        worksheet.write('T6', u'Кошумча', cell_format_name)
+        worksheet.write('U6', u'Суммасы', cell_format_name)
+        worksheet.set_row(5, 30)
+        l = [shaar.count(), aiyl.count(), too.count(), borbor.count(), olimpiadniki.count()]
+        m = max(l)
+        for i in 'ABCDEFGHIJKLMNOPQRSTU':
+            for j in range(7, m + 7):
+                worksheet.write('%s%s' % (i, j), None, cell_format_name)
+        counter = 6
+        for i in shaar:
+            counter += 1
+            worksheet.write('B%s' % str(counter), i.ortId, cell_format_name)
+            worksheet.write('C%s' % str(counter), i.main, cell_format_name)
+            worksheet.write('D%s' % str(counter), i.extra_num, cell_format_name)
+            worksheet.write('E%s' % str(counter), i.summa, cell_format_name)
+            worksheet.write('A%s' % str(counter), counter - 6, cell_format_name)
+        counter = 6
+        for i in borbor:
+            counter += 1
+            worksheet.write('F%s' % str(counter), i.ortId, cell_format_name)
+            worksheet.write('G%s' % str(counter), i.main, cell_format_name)
+            worksheet.write('H%s' % str(counter), i.extra_num, cell_format_name)
+            worksheet.write('I%s' % str(counter), i.summa, cell_format_name)
+            worksheet.write('A%s' % str(counter), counter - 6, cell_format_name)
+        counter = 6
+        for i in aiyl:
+            counter += 1
+            worksheet.write('J%s' % str(counter), i.ortId, cell_format_name)
+            worksheet.write('K%s' % str(counter), i.main, cell_format_name)
+            worksheet.write('L%s' % str(counter), i.extra_num, cell_format_name)
+            worksheet.write('M%s' % str(counter), i.summa, cell_format_name)
+            worksheet.write('A%s' % str(counter), counter - 6, cell_format_name)
+        counter = 6
+        for i in too:
+            counter += 1
+            worksheet.write('N%s' % str(counter), i.ortId, cell_format_name)
+            worksheet.write('O%s' % str(counter), i.main, cell_format_name)
+            worksheet.write('P%s' % str(counter), i.extra_num, cell_format_name)
+            worksheet.write('Q%s' % str(counter), i.summa, cell_format_name)
+            worksheet.write('A%s' % str(counter), counter - 6, cell_format_name)
+        counter = 6
+        for i in olimpiadniki:
+            counter += 1
+            worksheet.write('R%s' % str(counter), i.ortId, cell_format_name)
+            worksheet.write('S%s' % str(counter), i.main, cell_format_name)
+            worksheet.write('T%s' % str(counter), i.extra_num, cell_format_name)
+            worksheet.write('U%s' % str(counter), i.summa, cell_format_name)
+            worksheet.write('A%s' % str(counter), counter - 6, cell_format_name)
+        m += 6
+        worksheet.write('B%s' % (m + 3), u'Всего', cell_format_name)
+        worksheet.write('C%s' % (m + 3), alumnis.count(), cell_format_name)
+        worksheet.write('D%s' % (m + 5), u'Квота', cell_format_name)
+        worksheet.merge_range('B%s:C%s' % (m + 5, m + 5), u'Шаар', cell_format_name)
+        worksheet.write('G%s' % (m + 5), u'Квота', cell_format_name)
+        worksheet.merge_range('E%s:F%s' % (m + 5, m + 5), u'Кичи шаар ж/а обл.', cell_format_name)
+        worksheet.write('J%s' % (m + 5), u'Квота', cell_format_name)
+        worksheet.merge_range('H%s:I%s' % (m + 5, m + 5), u'Айыл жергеси', cell_format_name)
+        worksheet.write('M%s' % (m + 5), u'Квота', cell_format_name)
+        worksheet.merge_range('K%s:L%s' % (m + 5, m + 5), u'Бийик тоолу айм.', cell_format_name)
+        worksheet.write('P%s' % (m + 5), u'Квота', cell_format_name)
+        worksheet.merge_range('N%s:O%s' % (m + 5, m + 5), u'Олимпиада жең.', cell_format_name)
+        n = 0
+        k = 0
+        o = 0
+        p = 0
+        if alumnis.count() != 0:
+            if shaar.count() != 0:
+                n = shaar.count() * (lgotnik.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+            if borbor.count() != 0:
+                k = borbor.count() * (lgotnik.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+            if aiyl.count() != 0:
+                o = aiyl.count() * (lgotnik.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+            if too.count() != 0:
+                p = too.count() * (lgotnik.filled_quota - olimpiadniki.count()) / float(
+                    alumnis.count() - olimpiadniki.count())
+        worksheet.write('D%s' % (m + 6), n, cell_format_name)
+        worksheet.merge_range('B%s:C%s' % (m + 6, m + 6), shaar.count(), cell_format_name)
+        worksheet.write('G%s' % (m + 6), k, cell_format_name)
+        worksheet.merge_range('E%s:F%s' % (m + 6, m + 6), borbor.count(), cell_format_name)
+        worksheet.write('J%s' % (m + 6), o, cell_format_name)
+        worksheet.merge_range('H%s:I%s' % (m + 6, m + 6), aiyl.count(), cell_format_name)
+        worksheet.write('M%s' % (m + 6), p, cell_format_name)
+        worksheet.merge_range('K%s:L%s' % (m + 6, m + 6), too.count(), cell_format_name)
+        worksheet.write('P%s' % (m + 6), olimpiadniki.count(), cell_format_name)
+        worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), olimpiadniki.count(), cell_format_name)
+        barcode_worksheet = workbook.add_worksheet('Barcode')
+        barcode_worksheet.set_column('A:A', 1.5)
+        barcode_worksheet.set_column('B:B', 28)
+        barcode_worksheet.set_column('C:C', 20)
+        barcode_worksheet.set_column('D:D', 18)
+        barcode_worksheet.set_column('E:E', 5)
+        barcode_worksheet.set_column('F:F', 14)
+        barcode_worksheet.set_column('G:G', 12)
+        barcode_format = workbook.add_format({'align': 'center',
+                                              'valign': 'vcenter',
+                                              'font_size': 10,
+                                              'border': 1})
+        g = ord('G')
+        for i in Lesson.objects.all():
+            g += 1
+            barcode_worksheet.write('%s1' % chr(g), i.name, barcode_format)
+        barcode_worksheet.write('A1', u'№', barcode_format)
+        barcode_worksheet.write('B1', u'поле для ввода со сканера ШК', barcode_format)
+        barcode_worksheet.write('C1', u'регистрационный номер', barcode_format)
+        barcode_worksheet.write('D1', u'цвет сертификата', barcode_format)
+        barcode_worksheet.write('E1', u'тур', barcode_format)
+        barcode_worksheet.write('F1', u'отделение', barcode_format)
+        barcode_worksheet.write('G1', u'телефон', barcode_format)
+        count = 1
+        for i in alumnis.all():
+            count += 1
+            barcode_worksheet.write('B%s' % count, i.barcode, barcode_format)
+            barcode_worksheet.write('A%s' % count, count - 1, barcode_format)
+            barcode_worksheet.write('C%s' % count, i.ortId, barcode_format)
+            if i.place == u'Шаар':
+                barcode_worksheet.write('D%s' % count, u'К', format)
+            elif i.place == u'Борбор':
+                barcode_worksheet.write('D%s' % count, u'С', format_blue)
+            elif i.place == u'Айыл':
+                barcode_worksheet.write('D%s' % count, u'Ж', format_yellow)
+            else:
+                barcode_worksheet.write('D%s' % count, u'Ф', format_purple)
+            barcode_worksheet.write('E%s' % count, i.tour.name, barcode_format)
+            barcode_worksheet.write('F%s' % count, i.faculty.name, barcode_format)
+            barcode_worksheet.write('G%s' % count, i.phone, barcode_format)
+            g = ord('G')
+            for j in Lesson.objects.all():
+                g += 1
+                try:
+                    barcode_worksheet.write('%s%s' % (chr(g), count), AlumniLesson.objects.get(lesson=j, alumni=i).grade,
+                                        barcode_format)
+                except:
+                    barcode_worksheet.write('%s%s' % (chr(g), count), '000',
+                                        barcode_format)
+
+        journal_worksheet = workbook.add_worksheet('Journal')
+        journal_worksheet.set_column('A:A', 1.5)
+        journal_worksheet.set_column('B:G', 10)
+        journal_format = workbook.add_format({'align': 'center',
+                                              'valign': 'vcenter',
+                                              'font_size': 8,
+                                              'border': 1})
+        journal_worksheet.write('A1', u'№', journal_format)
+        journal_worksheet.write('B1', u'Идент.', journal_format)
+        journal_worksheet.write('C1', u'Основной', journal_format)
+        journal_worksheet.write('D1', u'Доп', journal_format)
+        journal_worksheet.write('E1', u'Сумма', journal_format)
+        journal_worksheet.write('F1', u'Категория', journal_format)
+        journal_worksheet.write('G1', u'Атестат', journal_format)
+        journal_worksheet.set_default_row(11)
+        c = 0
+        for i in alumnis.all():
+            c += 1
+            journal_worksheet.write('A%s' % (c + 1), c, journal_format)
+            journal_worksheet.write('B%s' % (c + 1), i.ortId, journal_format)
+            journal_worksheet.write('C%s' % (c + 1), i.main, journal_format)
+            journal_worksheet.write('D%s' % (c + 1), i.extra_num, journal_format)
+            journal_worksheet.write('E%s' % (c + 1), i.summa, journal_format)
+            if i.place == u'Шаар':
+                journal_worksheet.write('F%s' % (c + 1), u'К', format)
+            elif i.place == u'Борбор':
+                journal_worksheet.write('F%s' % (c + 1), u'С', format_blue)
+            elif i.place == u'Айыл':
+                journal_worksheet.write('F%s' % (c + 1), u'Ж', format_yellow)
+            else:
+                journal_worksheet.write('F%s' % (c + 1), u'Ф', format_purple)
+            if i.atestat:
+                journal_worksheet.write('G%s' % (c + 1), '*', journal_format)
+            else:
+                journal_worksheet.write('G%s' % (c + 1), ' ', journal_format)
+        workbook.close()
+        self.file = '/media/otchet_%s_%s_%s.xlsx' % (tour.name, lgotnik.name, self.date)
+        super(OtchetLgotnik, self).save()

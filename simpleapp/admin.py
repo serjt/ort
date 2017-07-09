@@ -27,16 +27,30 @@ class AlumniAdmin(admin.ModelAdmin):
     list_per_page = 30
     list_filter = 'tour faculty place olimpiadnik lgotnik atestat passed'.split()
     search_fields = 'ortId'.split()
-    list_editable = 'tour passed'.split()
+    list_editable = 'tour passed lgotnik'.split()
     fields = 'barcode main extra_num summa ortId faculty tour place atestat lgotnik olimpiadnik passed'.split()
-    list_display = 'ortId tour faculty place main extra_num summa passed'.split()
+    list_display = 'ortId tour faculty place lgotnik main extra_num summa passed'.split()
 
     inlines = [AlumniLessonInline]
 
+
+class OtchetAdmin(admin.ModelAdmin):
+    list_display = 'tour department date'.split()
+
+
+class OtchetLgotnikAdmin(admin.ModelAdmin):
+    list_display = 'tour lgotnik date'.split()
+
+
+class ProtocolAdmin(admin.ModelAdmin):
+    list_display = 'tour date'.split()
+
+
 admin.site.register(Tour)
 admin.site.register(Lgotnik)
-admin.site.register(Protocol)
-admin.site.register(Otchet)
+admin.site.register(Protocol, ProtocolAdmin)
+admin.site.register(Otchet, OtchetAdmin)
 admin.site.register(Faculty, FacultyAdmin)
 admin.site.register(Lesson)
-admin.site.register(Alumni,AlumniAdmin)
+admin.site.register(OtchetLgotnik, OtchetLgotnikAdmin)
+admin.site.register(Alumni, AlumniAdmin)
