@@ -511,7 +511,7 @@ class OtchetLgotnik(models.Model):
         too = alumnis.filter(place=u'Тоо').exclude(olimpiadnik=True)
         olimpiadniki = alumnis.filter(olimpiadnik=True)
         name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s_%s.xlsx' % (
-            tour.name, lgotnik.name, self.date)
+            tour.slug, lgotnik.id, self.date)
         workbook = xlsxwriter.Workbook(name)
         worksheet = workbook.add_worksheet('Result')
         worksheet.set_column('A:A', 1.5)
@@ -751,5 +751,5 @@ class OtchetLgotnik(models.Model):
             else:
                 journal_worksheet.write('G%s' % (c + 1), ' ', journal_format)
         workbook.close()
-        self.file = '/media/otchet_%s_%s_%s.xlsx' % (tour.name, lgotnik.name, self.date)
+        self.file = '/media/otchet_%s_%s_%s.xlsx' % (tour.slug, lgotnik.id, self.date)
         super(OtchetLgotnik, self).save()
