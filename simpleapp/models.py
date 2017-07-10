@@ -548,7 +548,8 @@ class OtchetLgotnik(models.Model):
         for i in Faculty.objects.all():
             if al.filter(faculty=i).count() > 0:
                 string = string + ' ' + i.name
-        worksheet.merge_range('A1:K1', u"%s %s багыты боюнча" % (string, lgotnik.name), cell_format)
+        worksheet.merge_range('A1:K1', u"%s багыты боюнча" % (lgotnik.name), cell_format)
+        worksheet.merge_range('L1:T1', u"%s" % (string), cell_format)
         worksheet.merge_range('A2:K2', u"%sда катышкандардын тизмеси" % tour.name, cell_format)
         worksheet.merge_range('A3:K3', u"Кабыл алуу планы: %s" % lgotnik.filled_quota, cell_format)
         worksheet.merge_range('A5:A6', 'N', cell_format)
