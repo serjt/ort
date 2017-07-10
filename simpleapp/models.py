@@ -168,7 +168,7 @@ class Otchet(models.Model):
     def save(self, *args, **kwargs):
         faculty = self.department
         tour = self.tour
-        alumnis = Alumni.objects.filter(faculty=faculty, tour=tour, lgotnik__isnull=True).order_by('summa')
+        alumnis = Alumni.objects.filter(faculty=faculty, tour=tour, lgotnik__isnull=True).order_by('-summa')
         shaar = alumnis.filter(place=u'Шаар').exclude(olimpiadnik=True)
         borbor = alumnis.filter(place=u'Борбор').exclude(olimpiadnik=True)
         aiyl = alumnis.filter(place=u'Айыл').exclude(olimpiadnik=True)
@@ -517,7 +517,7 @@ class OtchetLgotnik(models.Model):
     def save(self, *args, **kwargs):
         tour = self.tour
         lgotnik = self.lgotnik
-        alumnis = Alumni.objects.filter(tour=tour, lgotnik=lgotnik).order_by('summa')
+        alumnis = Alumni.objects.filter(tour=tour, lgotnik=lgotnik).order_by('-summa')
         shaar = alumnis.filter(place=u'Шаар').exclude(olimpiadnik=True)
         borbor = alumnis.filter(place=u'Борбор').exclude(olimpiadnik=True)
         aiyl = alumnis.filter(place=u'Айыл').exclude(olimpiadnik=True)
