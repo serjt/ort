@@ -694,7 +694,7 @@ class OtchetLgotnik(models.Model):
                               cell_format_manager)
         c = -1
         for faculty in Faculty.objects.all():
-            if al.filter(faculty=faculty) > 0:
+            if al.filter(faculty=faculty).count() > 0:
                 c += 1
                 worksheet.merge_range('H%s:J%s' % (m + 10 + c, m + 10 + c),
                                       faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
