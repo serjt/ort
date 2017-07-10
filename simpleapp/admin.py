@@ -12,7 +12,7 @@ class AlumniInline(admin.StackedInline):
 
 
 class FacultyAdmin(admin.ModelAdmin):
-    fields = 'name lessons quota filled_quota manager'.split()
+    fields = 'name lessons slug quota filled_quota manager'.split()
     list_display = 'name'.split()
     inlines = [AlumniInline]
 

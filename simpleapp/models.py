@@ -25,6 +25,7 @@ class Faculty(models.Model):
         verbose_name_plural = 'Отделения'
 
     name = models.CharField(max_length=100, verbose_name='Отделение')
+    slug = models.SlugField(max_length=100)
     lessons = models.ManyToManyField('Lesson', verbose_name='Предметы')
     quota = models.IntegerField(default=0, verbose_name='Квота')
     filled_quota = models.IntegerField(default=0, verbose_name='Осталось')
@@ -44,7 +45,7 @@ class Tour(models.Model):
     class Meta:
         verbose_name = 'Тур'
         verbose_name_plural = 'Туры'
-
+    slug = models.SlugField(max_length=100)
     name = models.CharField(max_length=100, verbose_name='Название')
     initial = models.DateTimeField(null=True, blank=True, verbose_name='Начало')
     final = models.DateTimeField(null=True, blank=True, verbose_name='Конец')
@@ -148,8 +149,8 @@ class Protocol(models.Model):
             p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
                                                   '  _______________      А.А. Кулмырзаев ', style='style')
             document.add_page_break()
-        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % (self.tour.name))
-        self.protocol = '/media/protocol_%s.docx' % (self.tour.name)
+        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % self.tour.slug)
+        self.protocol = '/media/protocol_%s.docx' % self.tour.slug
         super(Protocol, self).save()
 
 
@@ -173,7 +174,7 @@ class Otchet(models.Model):
         too = alumnis.filter(place=u'Тоо').exclude(olimpiadnik=True)
         olimpiadniki = alumnis.filter(olimpiadnik=True)
         name = settings.BASE_DIR + u'/static_in_env/media_root/otchet_%s_%s_%s.xlsx' % (
-            tour.id, faculty.id, self.date)
+            tour.slug, faculty.slug, self.date)
         workbook = xlsxwriter.Workbook(name)
         worksheet = workbook.add_worksheet('Result')
         worksheet.set_column('A:A', 1.5)
@@ -416,7 +417,7 @@ class Otchet(models.Model):
             else:
                 journal_worksheet.write('G%s' % (c + 1), ' ', journal_format)
         workbook.close()
-        self.otchet = '/media/otchet_%s_%s_%s.xlsx' % (tour.id, faculty.id, self.date)
+        self.otchet = '/media/otchet_%s_%s_%s.xlsx' % (tour.slug, faculty.slug, self.date)
         super(Otchet, self).save()
 
 
