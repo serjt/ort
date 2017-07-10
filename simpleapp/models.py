@@ -692,12 +692,12 @@ class OtchetLgotnik(models.Model):
         worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), 'Бакыт Исаков', cell_format_manager)
         worksheet.merge_range('C%s:G%s' % (m + 10, m + 10), 'Гранттык комиссиянын техникалык катчысы',
                               cell_format_manager)
-        c = 0
+        c = -1
         for faculty in Faculty.objects.all():
-            if al.filter(tour=tour, lgotnik=lgotnik)>0:
-                c+=1
-                worksheet.merge_range('H%s:J%s' % (m + 10+c, m + 10+c),
-                              faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
+            if al.filter(faculty=faculty) > 0:
+                c += 1
+                worksheet.merge_range('H%s:J%s' % (m + 10 + c, m + 10 + c),
+                                      faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
                 continue
         worksheet.merge_range('L%s:M%s' % (m + 8, m + 8), self.date, cell_format_manager)
         barcode_worksheet = workbook.add_worksheet('Barcode')
