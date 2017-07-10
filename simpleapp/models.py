@@ -372,8 +372,13 @@ class Otchet(models.Model):
             g = ord('G')
             for j in faculty.lessons.all():
                 g += 1
-                barcode_worksheet.write('%s%s' % (chr(g), count), AlumniLesson.objects.get(lesson=j, alumni=i).grade,
-                                        barcode_format)
+                try:
+                    barcode_worksheet.write('%s%s' % (chr(g), count),
+                                            AlumniLesson.objects.get(lesson=j, alumni=i).grade,
+                                            barcode_format)
+                except:
+                    barcode_worksheet.write('%s%s' % (chr(g), count), '000',
+                                            barcode_format)
 
         journal_worksheet = workbook.add_worksheet('Journal')
         journal_worksheet.set_column('A:A', 1.5)
@@ -489,6 +494,7 @@ class OtchetLgotnik(models.Model):
     class Meta:
         verbose_name = 'Отчет(Льготник)'
         verbose_name_plural = 'Отчет(Льготники)'
+
     tour = models.ForeignKey(Tour, verbose_name="Тур")
     lgotnik = models.ForeignKey(Lgotnik, verbose_name='Льготник')
     file = models.FileField(upload_to=file_upload_to, blank=True, null=True, verbose_name='Файл')
@@ -701,11 +707,12 @@ class OtchetLgotnik(models.Model):
             for j in Lesson.objects.all():
                 g += 1
                 try:
-                    barcode_worksheet.write('%s%s' % (chr(g), count), AlumniLesson.objects.get(lesson=j, alumni=i).grade,
-                                        barcode_format)
+                    barcode_worksheet.write('%s%s' % (chr(g), count),
+                                            AlumniLesson.objects.get(lesson=j, alumni=i).grade,
+                                            barcode_format)
                 except:
                     barcode_worksheet.write('%s%s' % (chr(g), count), '000',
-                                        barcode_format)
+                                            barcode_format)
 
         journal_worksheet = workbook.add_worksheet('Journal')
         journal_worksheet.set_column('A:A', 1.5)
