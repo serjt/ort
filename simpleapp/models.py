@@ -45,6 +45,7 @@ class Tour(models.Model):
     class Meta:
         verbose_name = 'Тур'
         verbose_name_plural = 'Туры'
+
     slug = models.SlugField(max_length=100)
     name = models.CharField(max_length=100, verbose_name='Название')
     initial = models.DateTimeField(null=True, blank=True, verbose_name='Начало')
@@ -194,9 +195,9 @@ class Otchet(models.Model):
                                                 'font_size': 7,
                                                 'border': 1})
         cell_format_manager = workbook.add_format({'align': 'center',
-                                                'valign': 'vcenter',
-                                                'font_size': 7,
-                                                })
+                                                   'valign': 'vcenter',
+                                                   'font_size': 7,
+                                                   })
         worksheet.merge_range('A1:K1', u"%s багыты боюнча" % faculty.name, cell_format)
         worksheet.merge_range('A2:K2', u"%sда катышкандардын тизмеси" % tour.name, cell_format)
         worksheet.merge_range('A3:K3', u"Кабыл алуу планы: %s" % faculty.filled_quota, cell_format)
@@ -334,8 +335,11 @@ class Otchet(models.Model):
         worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), olimpiadniki.count(), cell_format_name)
         worksheet.merge_range('C%s:G%s' % (m + 8, m + 8), 'Гранттык комиссиянын жоопту катчысы', cell_format_manager)
         worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), 'Бакыт Исаков', cell_format_manager)
-        worksheet.merge_range('C%s:G%s' % (m + 10, m + 10), 'Гранттык комиссиянын техникалык катчысы', cell_format_manager)
-        worksheet.merge_range('H%s:J%s' % (m + 10, m + 10), faculty.manager.first_name+' '+faculty.manager.last_name, cell_format_manager)
+        worksheet.merge_range('C%s:G%s' % (m + 10, m + 10), 'Гранттык комиссиянын техникалык катчысы',
+                              cell_format_manager)
+        worksheet.merge_range('H%s:J%s' % (m + 10, m + 10),
+                              faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
+        worksheet.merge_range('L%s:M%s' % (m + 10, m + 10), self.date, cell_format_manager)
         barcode_worksheet = workbook.add_worksheet('Barcode')
         barcode_worksheet.set_column('A:A', 1.5)
         barcode_worksheet.set_column('B:B', 28)
@@ -539,7 +543,12 @@ class OtchetLgotnik(models.Model):
                                                 'valign': 'vcenter',
                                                 'font_size': 7,
                                                 'border': 1})
-        worksheet.merge_range('A1:K1', u"%s багыты боюнча" % lgotnik.name, cell_format)
+        al = Alumni.objects.filter(tour=self.tour, lgotnik=self.lgotnik)
+        string = ''
+        for i in Faculty.objects.all():
+            if al.filter(faculty=i).count() > 0:
+                string += i.name
+        worksheet.merge_range('A1:K1', u"%s %s багыты боюнча" %(string,lgotnik.name) , cell_format)
         worksheet.merge_range('A2:K2', u"%sда катышкандардын тизмеси" % tour.name, cell_format)
         worksheet.merge_range('A3:K3', u"Кабыл алуу планы: %s" % lgotnik.filled_quota, cell_format)
         worksheet.merge_range('A5:A6', 'N', cell_format)
