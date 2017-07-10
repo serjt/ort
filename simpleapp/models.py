@@ -339,7 +339,7 @@ class Otchet(models.Model):
                               cell_format_manager)
         worksheet.merge_range('H%s:J%s' % (m + 10, m + 10),
                               faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
-        worksheet.merge_range('L%s:M%s' % (m + 10, m + 10), self.date, cell_format_manager)
+        worksheet.merge_range('L%s:M%s' % (m + 8, m + 8), self.date, cell_format_manager)
         barcode_worksheet = workbook.add_worksheet('Barcode')
         barcode_worksheet.set_column('A:A', 1.5)
         barcode_worksheet.set_column('B:B', 28)
@@ -529,6 +529,10 @@ class OtchetLgotnik(models.Model):
         worksheet = workbook.add_worksheet('Result')
         worksheet.set_column('A:A', 1.5)
         worksheet.set_column('B:Z', 5)
+        cell_format_manager = workbook.add_format({'align': 'center',
+                                                   'valign': 'vcenter',
+                                                   'font_size': 7,
+                                                   })
         format = workbook.add_format({'bg_color': 'red',
                                       'align': 'center',
                                       'valign': 'vcenter',
@@ -547,7 +551,8 @@ class OtchetLgotnik(models.Model):
         string = ''
         for i in Faculty.objects.all():
             if al.filter(faculty=i).count() > 0:
-                string = string + ' ' + i.name
+                string = string + ',' + i.name
+                continue
         worksheet.merge_range('A1:K1', u"%s багыты боюнча" % (lgotnik.name), cell_format)
         worksheet.merge_range('L1:T1', u"%s" % (string), cell_format)
         worksheet.merge_range('A2:K2', u"%sда катышкандардын тизмеси" % tour.name, cell_format)
@@ -683,6 +688,18 @@ class OtchetLgotnik(models.Model):
         worksheet.merge_range('K%s:L%s' % (m + 6, m + 6), too.count(), cell_format_name)
         worksheet.write('P%s' % (m + 6), olimpiadniki.count(), cell_format_name)
         worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), olimpiadniki.count(), cell_format_name)
+        worksheet.merge_range('C%s:G%s' % (m + 8, m + 8), 'Гранттык комиссиянын жоопту катчысы', cell_format_manager)
+        worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), 'Бакыт Исаков', cell_format_manager)
+        worksheet.merge_range('C%s:G%s' % (m + 10, m + 10), 'Гранттык комиссиянын техникалык катчысы',
+                              cell_format_manager)
+        c = 0
+        for faculty in Faculty.objects.all():
+            if al.filter(tour=tour, lgotnik=lgotnik)>0:
+                c+=1
+                worksheet.merge_range('H%s:J%s' % (m + 10+c, m + 10+c),
+                              faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
+                continue
+        worksheet.merge_range('L%s:M%s' % (m + 8, m + 8), self.date, cell_format_manager)
         barcode_worksheet = workbook.add_worksheet('Barcode')
         barcode_worksheet.set_column('A:A', 1.5)
         barcode_worksheet.set_column('B:B', 28)
