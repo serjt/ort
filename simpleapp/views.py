@@ -47,7 +47,10 @@ def all_tables(request):
         }
         return render_to_response('all_tables.html', context)
     else:
-        return render_to_response('not_found.html')
+        args = {
+            'tours': Tour.objects.all(),
+        }
+        return render_to_response('not_found.html',args)
 
 
 def logout(request):
@@ -174,10 +177,12 @@ def home(request):
 
 def tour(request, p1):
     tour = Tour.objects.get(id=p1)
+    user =  request.user
     args = {
         'tours': Tour.objects.all(),
         'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
         'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
-        'abis': Alumni.objects.filter(tour=tour, passed=True).order_by('place', '-summa')
+        'abis': Alumni.objects.filter(tour=tour, passed=True).order_by('place', '-summa'),
+        'user':user
     }
     return render_to_response('tour.html', args)
