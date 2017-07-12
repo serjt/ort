@@ -28,7 +28,7 @@ class AlumniAdmin(admin.ModelAdmin):
     list_filter = 'tour faculty place olimpiadnik lgotnik atestat passed'.split()
     search_fields = 'ortId'.split()
     list_editable = 'tour passed lgotnik'.split()
-    fields = 'barcode main extra_num summa ortId faculty tour place atestat lgotnik olimpiadnik passed'.split()
+    fields = 'barcode main extra_num summa ortId faculty tour place atestat lgotnik olimpiadnik phone passed'.split()
     list_display = 'ortId tour faculty place lgotnik main extra_num summa passed'.split()
 
     inlines = [AlumniLessonInline]
