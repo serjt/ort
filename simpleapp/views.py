@@ -166,4 +166,18 @@ def home(request):
         }
         return render_to_response('home.html', args)
     else:
-        return render_to_response('not_found.html')
+        args = {
+            'tours': Tour.objects.all(),
+        }
+        return render_to_response('not_found.html', args)
+
+
+def tour(request, p1):
+    tour = Tour.objects.get(id =p1)
+    args = {
+        'tours':Tour.objects.all(),
+        'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
+            'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
+            'abis': Alumni.objects.filter(tour=tour).order_by('place', '-summa')
+    }
+    return render_to_response('tour.html',args)
