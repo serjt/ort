@@ -88,7 +88,7 @@ class Protocol(models.Model):
                 u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
                 u'адистиги боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % i.name, style='style')
             p3 = document.add_paragraph().add_run(u'- Бишкек ш. бүтүрүүчүлөрү (бөлүнгөн орундар) ', style='style')
-            alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i)
+            alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
             hdr_cells = table.rows[0].cells
             hdr_cells[0].text = u'Иден №'
