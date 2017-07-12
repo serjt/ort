@@ -62,6 +62,7 @@ class Protocol(models.Model):
 
     tour = models.ForeignKey(Tour, verbose_name='Тур')
     protocol = models.FileField(upload_to=file_upload_to, null=True, blank=True, verbose_name='Файл')
+    file = models.FileField(upload_to=file_upload_to, null=True, blank=True, verbose_name='Файл RU')
     date = models.DateField(auto_now=True, verbose_name='Дата')
 
     def save(self, *args, **kwargs):
@@ -166,6 +167,106 @@ class Protocol(models.Model):
             document.add_page_break()
         document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % self.tour.slug)
         self.protocol = '/media/protocol_%s.docx' % self.tour.slug
+        document = Document()
+
+        obj_styles = document.styles
+        obj_charstyle = obj_styles.add_style('style', WD_STYLE_TYPE.CHARACTER)
+        obj_font = obj_charstyle.font
+        obj_font.size = Pt(12)
+        obj_font.name = 'Times New Roman'
+        dep = Faculty.objects.all()
+        for i in dep:
+            p = document.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.add_run(u'« Протокол № ___3___ » ',
+                      style='style').bold = True
+            p1 = document.add_paragraph()
+            p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.add_run(u'«Об утверждении списков абитуриентов, рекомендованных к зачислению»', style='style').bold = True
+            p1.add_run(u'«__» __ ____-года', style='style')
+            p2 = document.add_paragraph().add_run(
+                u'Грантовая комиссия на основе конкурсного отбора абитуриентов в рамках отдельных'
+                u'категорий, в соответствии с количеством мест утверждённых Протоколом № __ июля ____ г.'
+                u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по специальности'
+                u' «%s» следующих абитуриентов:' % i.name, style='style')
+            p3 = document.add_paragraph().add_run(u'-выпускники г. Бишкек (выделено мест) ', style='style')
+            alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'по основному тесту'
+            hdr_cells[2].text = u'по дополнительному'
+            hdr_cells[3].text = u'сумма'
+            for j in alumnis.filter(place='Шаар', lgotnik__isnull=True):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            p3 = document.add_paragraph().add_run(u'-выпускники областных центров и малых городов (выделено места)', style='style')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'по основному тесту'
+            hdr_cells[2].text = u'по дополнительному'
+            hdr_cells[3].text = u'сумма'
+            for j in alumnis.filter(place='Борбор', lgotnik__isnull=True):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            p3 = document.add_paragraph().add_run(u'-выпускники сел (выделено мест) ', style='style')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'по основному тесту'
+            hdr_cells[2].text = u'по дополнительному'
+            hdr_cells[3].text = u'сумма'
+            for j in alumnis.filter(place='Айыл', lgotnik__isnull=True):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+
+            p3 = document.add_paragraph().add_run(u'- выпускники высокогорных районов (выделено мест)',
+                                                  style='style')
+            table = document.add_table(rows=1, cols=4, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = u'Иден №'
+            hdr_cells[1].text = u'по основному тесту'
+            hdr_cells[2].text = u'по дополнительному'
+            hdr_cells[3].text = u'сумма'
+            for j in alumnis.filter(place='Тоо', lgotnik__isnull=True):
+                row = table.add_row().cells
+                row[0].text = j.ortId
+                row[1].text = str(j.main)
+                row[2].text = str(j.extra_num)
+                row[3].text = str(j.summa)
+            if alumnis.filter(lgotnik__isnull=False).count()>0:
+                p3 = document.add_paragraph().add_run(u'- вне конкурса (льготники)',
+                                                  style='style')
+                table = document.add_table(rows=1, cols=4, style='Table Grid')
+                hdr_cells = table.rows[0].cells
+                hdr_cells[0].text = u'Иден №'
+                hdr_cells[1].text = u'по основному тесту'
+                hdr_cells[2].text = u'по дополнительному'
+                hdr_cells[3].text = u'сумма'
+                for j in alumnis.filter(lgotnik__isnull=False):
+                    row = table.add_row().cells
+                    row[0].text = j.ortId
+                    row[1].text = str(j.main)
+                    row[2].text = str(j.extra_num)
+                    row[3].text = str(j.summa)
+            document.add_paragraph()
+            p3 = document.add_paragraph().add_run('Председатель грантовой комиссии, профессор '
+                                                  '  _______________      А.А. Кулмырзаев ', style='style')
+            document.add_page_break()
+        document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s_ru.docx' % self.tour.slug)
+        self.file = '/media/protocol_%s_ru.docx' % self.tour.slug
         super(Protocol, self).save()
 
 
