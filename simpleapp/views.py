@@ -178,6 +178,6 @@ def tour(request, p1):
         'tours': Tour.objects.all(),
         'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
         'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
-        'abis': Alumni.objects.filter(tour=tour).order_by('place', '-summa')
+        'abis': Alumni.objects.filter(tour=tour, passed=True).order_by('place', '-summa')
     }
     return render_to_response('tour.html', args)
