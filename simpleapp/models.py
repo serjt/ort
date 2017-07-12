@@ -95,7 +95,7 @@ class Protocol(models.Model):
             hdr_cells[1].text = u'негизги тест'
             hdr_cells[2].text = u'кошумча тест'
             hdr_cells[3].text = u'суммасы'
-            for j in alumnis.filter(place='Шаар'):
+            for j in alumnis.filter(place='Шаар', lgotnik__isnull=True):
                 row = table.add_row().cells
                 row[0].text = j.ortId
                 row[1].text = str(j.main)
@@ -110,7 +110,7 @@ class Protocol(models.Model):
             hdr_cells[1].text = u'негизги тест'
             hdr_cells[2].text = u'кошумча тест'
             hdr_cells[3].text = u'суммасы'
-            for j in alumnis.filter(place='Борбор'):
+            for j in alumnis.filter(place='Борбор', lgotnik__isnull=True):
                 row = table.add_row().cells
                 row[0].text = j.ortId
                 row[1].text = str(j.main)
@@ -124,7 +124,7 @@ class Protocol(models.Model):
             hdr_cells[1].text = u'негизги тест'
             hdr_cells[2].text = u'кошумча тест'
             hdr_cells[3].text = u'суммасы'
-            for j in alumnis.filter(place='Айыл'):
+            for j in alumnis.filter(place='Айыл', lgotnik__isnull=True):
                 row = table.add_row().cells
                 row[0].text = j.ortId
                 row[1].text = str(j.main)
@@ -139,13 +139,27 @@ class Protocol(models.Model):
             hdr_cells[1].text = u'негизги тест'
             hdr_cells[2].text = u'кошумча тест'
             hdr_cells[3].text = u'суммасы'
-            for j in alumnis.filter(place='Тоо'):
+            for j in alumnis.filter(place='Тоо', lgotnik__isnull=True):
                 row = table.add_row().cells
                 row[0].text = j.ortId
                 row[1].text = str(j.main)
                 row[2].text = str(j.extra_num)
                 row[3].text = str(j.summa)
-
+            if alumnis.filter(lgotnik__isnull=False).count()>0:
+                p3 = document.add_paragraph().add_run(u'- Льготниктер ',
+                                                  style='style')
+                table = document.add_table(rows=1, cols=4, style='Table Grid')
+                hdr_cells = table.rows[0].cells
+                hdr_cells[0].text = u'Иден №'
+                hdr_cells[1].text = u'негизги тест'
+                hdr_cells[2].text = u'кошумча тест'
+                hdr_cells[3].text = u'суммасы'
+                for j in alumnis.filter(lgotnik__isnull=False):
+                    row = table.add_row().cells
+                    row[0].text = j.ortId
+                    row[1].text = str(j.main)
+                    row[2].text = str(j.extra_num)
+                    row[3].text = str(j.summa)
             document.add_paragraph()
             p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
                                                   '  _______________      А.А. Кулмырзаев ', style='style')
