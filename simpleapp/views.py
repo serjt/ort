@@ -98,7 +98,7 @@ def add_abiturient(request):
     abi.ortId = code[0:6]
     faculty = Faculty.objects.get(id=department_id)
     abi.faculty = faculty
-    if Alumni.objects.filter(faculty=faculty, tour=tour, ortId=code[0:6]).count()>0:
+    if Alumni.objects.filter(faculty=faculty, tour=tour, ortId=code[0:6]).count() > 0:
         return render_to_response("error1.html")
     place = code[27]
     if place == 'R':
@@ -173,11 +173,11 @@ def home(request):
 
 
 def tour(request, p1):
-    tour = Tour.objects.get(id =p1)
+    tour = Tour.objects.get(id=p1)
     args = {
-        'tours':Tour.objects.all(),
+        'tours': Tour.objects.all(),
         'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
-            'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
-            'abis': Alumni.objects.filter(tour=tour).order_by('place', '-summa')
+        'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
+        'abis': Alumni.objects.filter(tour=tour).order_by('place', '-summa')
     }
-    return render_to_response('tour.html',args)
+    return render_to_response('tour.html', args)
