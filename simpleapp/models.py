@@ -24,8 +24,13 @@ class Faculty(models.Model):
         verbose_name = 'Отделение'
         verbose_name_plural = 'Отделения'
 
+    choices = (
+        ('Направление', 'Направление'),
+        ('Специальность', 'Специальность'),
+    )
     name = models.CharField(max_length=100, verbose_name='Отделение')
     name_ru = models.CharField(max_length=100, verbose_name='Отделение RU', null=True, blank=True)
+    spec = models.CharField(max_length=100, choices=choices)
     slug = models.SlugField(max_length=100)
     lessons = models.ManyToManyField('Lesson', verbose_name='Предметы')
     quota = models.IntegerField(default=0, verbose_name='Квота')
@@ -83,12 +88,17 @@ class Protocol(models.Model):
             p1 = document.add_paragraph()
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.add_run(u'№ 3-Протокол', style='style').bold = True
+            t = ''
+            if i.spec == 'Направление':
+                t = 'багыты'
+            else:
+                t = 'адистиги'
             p1.add_run(u'«__» __ ____-жыл', style='style')
             p2 = document.add_paragraph().add_run(
                 u'___-жылдын, __-июлундагы № 2-Протокол менен бекитилген '
                 u'орундардын санына ылайык айрым категориялардын чектеринде абитуриенттерди конкурстук'
                 u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
-                u'адистиги боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % i.name, style='style')
+                u'%s боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % (i.name,t), style='style')
             p3 = document.add_paragraph().add_run(u'- Бишкек ш. бүтүрүүчүлөрү (бөлүнгөн орундар) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -147,9 +157,9 @@ class Protocol(models.Model):
                 row[1].text = str(j.main)
                 row[2].text = str(j.extra_num)
                 row[3].text = str(j.summa)
-            if alumnis.filter(lgotnik__isnull=False).count()>0:
+            if alumnis.filter(lgotnik__isnull=False).count() > 0:
                 p3 = document.add_paragraph().add_run(u'- Льготниктер ',
-                                                  style='style')
+                                                      style='style')
                 table = document.add_table(rows=1, cols=4, style='Table Grid')
                 hdr_cells = table.rows[0].cells
                 hdr_cells[0].text = u'Иден №'
@@ -183,13 +193,18 @@ class Protocol(models.Model):
                       style='style').bold = True
             p1 = document.add_paragraph()
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            t = ''
+            if i.spec == 'Направление':
+                t = 'направлению'
+            else:
+                t = 'специальности'
             p.add_run(u'«Об утверждении списков абитуриентов, рекомендованных к зачислению»', style='style').bold = True
             p1.add_run(u'«__» __ ____-года', style='style')
             p2 = document.add_paragraph().add_run(
                 u'Грантовая комиссия на основе конкурсного отбора абитуриентов в рамках отдельных '
                 u' категорий, в соответствии с количеством мест утверждённых Протоколом № __ июля ____ г.'
-                u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по специальности '
-                u' «%s» следующих абитуриентов:' % i.name_ru, style='style')
+                u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по %s '
+                u' «%s» следующих абитуриентов:' %(t,i.name_ru), style='style')
             p3 = document.add_paragraph().add_run(u'-выпускники г. Бишкек (выделено мест) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -205,7 +220,8 @@ class Protocol(models.Model):
                 row[2].text = str(j.extra_num)
                 row[3].text = str(j.summa)
 
-            p3 = document.add_paragraph().add_run(u'-выпускники областных центров и малых городов (выделено места)', style='style')
+            p3 = document.add_paragraph().add_run(u'-выпускники областных центров и малых городов (выделено места)',
+                                                  style='style')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
             hdr_cells = table.rows[0].cells
             hdr_cells[0].text = u'Иден №'
@@ -247,9 +263,9 @@ class Protocol(models.Model):
                 row[1].text = str(j.main)
                 row[2].text = str(j.extra_num)
                 row[3].text = str(j.summa)
-            if alumnis.filter(lgotnik__isnull=False).count()>0:
+            if alumnis.filter(lgotnik__isnull=False).count() > 0:
                 p3 = document.add_paragraph().add_run(u'- вне конкурса (льготники)',
-                                                  style='style')
+                                                      style='style')
                 table = document.add_table(rows=1, cols=4, style='Table Grid')
                 hdr_cells = table.rows[0].cells
                 hdr_cells[0].text = u'Иден №'
@@ -307,10 +323,10 @@ class Otchet(models.Model):
                                            'valign': 'vcenter',
                                            'font_size': 7,
                                            })
-        cell_format_department = workbook.add_format({'bold':True,
-                                            'align': 'center',
-                                           'valign': 'vcenter',
-                                           'font_size': 7,})
+        cell_format_department = workbook.add_format({'bold': True,
+                                                      'align': 'center',
+                                                      'valign': 'vcenter',
+                                                      'font_size': 7,})
         cell_format_name = workbook.add_format({'align': 'center',
                                                 'valign': 'vcenter',
                                                 'font_size': 7,
@@ -461,10 +477,10 @@ class Otchet(models.Model):
         worksheet.merge_range('H%s:J%s' % (m + 10, m + 10),
                               faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
         cell_format_date = workbook.add_format({'align': 'center',
-                                                'num_format':'dd/mm/yy',
-                                                   'valign': 'vcenter',
-                                                   'font_size': 7,
-                                                   })
+                                                'num_format': 'dd/mm/yy',
+                                                'valign': 'vcenter',
+                                                'font_size': 7,
+                                                })
         worksheet.merge_range('L%s:M%s' % (m + 8, m + 8), self.date, cell_format_date)
         barcode_worksheet = workbook.add_worksheet('Barcode')
         barcode_worksheet.set_column('A:A', 1.5)
@@ -670,10 +686,10 @@ class OtchetLgotnik(models.Model):
                                            'valign': 'vcenter',
                                            'font_size': 7,
                                            })
-        cell_format_department = workbook.add_format({'bold':True,
-                                            'align': 'center',
-                                           'valign': 'vcenter',
-                                           'font_size': 7,})
+        cell_format_department = workbook.add_format({'bold': True,
+                                                      'align': 'center',
+                                                      'valign': 'vcenter',
+                                                      'font_size': 7,})
         cell_format_name = workbook.add_format({'align': 'center',
                                                 'valign': 'vcenter',
                                                 'font_size': 7,
@@ -831,10 +847,10 @@ class OtchetLgotnik(models.Model):
                                       faculty.manager.first_name + ' ' + faculty.manager.last_name, cell_format_manager)
                 continue
         cell_format_date = workbook.add_format({'align': 'center',
-                                                'num_format':'dd/mm/yy',
-                                                   'valign': 'vcenter',
-                                                   'font_size': 7,
-                                                   })
+                                                'num_format': 'dd/mm/yy',
+                                                'valign': 'vcenter',
+                                                'font_size': 7,
+                                                })
         worksheet.merge_range('L%s:M%s' % (m + 8, m + 8), self.date, cell_format_date)
         barcode_worksheet = workbook.add_worksheet('Barcode')
         barcode_worksheet.set_column('A:A', 1.5)
@@ -846,9 +862,9 @@ class OtchetLgotnik(models.Model):
         barcode_worksheet.set_column('G:G', 12)
         barcode_format = workbook.add_format({
             'align': 'center',
-                                              'valign': 'vcenter',
-                                              'font_size': 10,
-                                              'border': 1})
+            'valign': 'vcenter',
+            'font_size': 10,
+            'border': 1})
         g = ord('G')
         for i in Lesson.objects.all():
             g += 1
