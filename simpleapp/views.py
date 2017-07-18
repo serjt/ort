@@ -183,7 +183,8 @@ def tour(request, p1):
         'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
         'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
         'abis': Alumni.objects.filter(tour=tour, passed=True).order_by('place', '-summa'),
-        'user': user
+        'user': user,
+        'tour': tour,
     }
     return render_to_response('tour.html', args)
 
@@ -207,6 +208,7 @@ def rating(request, p1):
         'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
         'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
         'abis': Alumni.objects.filter(tour=tour).order_by('place', '-summa'),
-        'user': user
+        'user': user,
+        'tour': tour,
     }
     return render_to_response('rating.html', args)
