@@ -338,8 +338,11 @@ class Otchet(models.Model):
         worksheet.merge_range('A1:K1', u"%s багыты боюнча" % faculty.name, cell_format_department)
         worksheet.merge_range('A2:K2', u"%sда катышкандардын тизмеси" % tour.name, cell_format)
         worksheet.merge_range('A3:K3', u"Кабыл алуу планы: %s" % faculty.filled_quota, cell_format)
-        worksheet.merge_range('A5:A6', 'N', cell_format)
-        worksheet.merge_range('A5:A6', 'N', cell_format)
+        format_white = workbook.add_format({'align': 'center',
+                                            'valign': 'vcenter',
+                                            'font_size': 7,
+                                            'border': 1})
+        worksheet.merge_range('A5:A6', 'N', format_white)
         worksheet.merge_range('B5:E5', u'Шаар', format)
         format_blue = workbook.add_format({'bg_color': 'blue',
                                            'align': 'center',
@@ -359,10 +362,7 @@ class Otchet(models.Model):
                                              'font_size': 7,
                                              'border': 1})
         worksheet.merge_range('N5:Q5', u'Бийик тоолу аймак', format_purple)
-        format_white = workbook.add_format({'align': 'center',
-                                            'valign': 'vcenter',
-                                            'font_size': 7,
-                                            'border': 1})
+
         worksheet.merge_range('R5:U5', u'Олимпиада жеңүүчүлөрү', format_white)
         worksheet.write('B6', u'Иден', cell_format_name)
         worksheet.write('C6', u'Негизги', cell_format_name)
