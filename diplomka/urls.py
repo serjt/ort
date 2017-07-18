@@ -31,7 +31,9 @@ urlpatterns = [
     url(r'^add/', 'simpleapp.views.add'),
     url(r'^add_abiturient/', 'simpleapp.views.add_abiturient'),
     # url(r'^edit_abiturient/(\d+)/', 'simpleapp.views.edit_abiturient'),
-    url(r'^tour/(\d+)/', 'simpleapp.views.tour'),
+    url(r'^tour/(\d+)/', 'simpleapp.views.card'),
+    url(r'^result/(\d+)/', 'simpleapp.views.tour'),
+    url(r'^rating/(\d+)/', 'simpleapp.views.rating'),
     url(r'^tour/$', 'simpleapp.views.all_tables'),
     # url(r'^edit/(\d+)/', 'simpleapp.views.edit'),
     # url(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS

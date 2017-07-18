@@ -50,7 +50,7 @@ def all_tables(request):
         args = {
             'tours': Tour.objects.all(),
         }
-        return render_to_response('not_found.html',args)
+        return render_to_response('not_found.html', args)
 
 
 def logout(request):
@@ -177,12 +177,36 @@ def home(request):
 
 def tour(request, p1):
     tour = Tour.objects.get(id=p1)
-    user =  request.user
+    user = request.user
     args = {
         'tours': Tour.objects.all(),
         'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
         'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
         'abis': Alumni.objects.filter(tour=tour, passed=True).order_by('place', '-summa'),
-        'user':user
+        'user': user
     }
     return render_to_response('tour.html', args)
+
+
+def card(request, p1):
+    t = Tour.objects.get(id=p1)
+    user = request.user
+    args = {
+        't': t,
+        'tours': Tour.objects.all(),
+        'user': user
+    }
+    return render_to_response('card.html', args)
+
+
+def rating(request, p1):
+    tour = Tour.objects.get(id=p1)
+    user = request.user
+    args = {
+        'tours': Tour.objects.all(),
+        'subject': Faculty.objects.filter(filled_quota__gt=0).first(),
+        'subjects': Faculty.objects.filter(filled_quota__gt=0)[1:],
+        'abis': Alumni.objects.filter(tour=tour).order_by('place', '-summa'),
+        'user': user
+    }
+    return render_to_response('rating.html', args)
