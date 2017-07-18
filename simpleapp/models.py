@@ -98,7 +98,7 @@ class Protocol(models.Model):
                 u'___-жылдын, __-июлундагы № _-Протокол менен бекитилген '
                 u'орундардын санына ылайык айрым категориялардын чектеринде абитуриенттерди конкурстук'
                 u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
-                u'%s боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % (i.name,t), style='style')
+                u'%s боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % (i.name, t), style='style')
             p3 = document.add_paragraph().add_run(u'- Бишкек ш. бүтүрүүчүлөрү (бөлүнгөн орундар) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -173,8 +173,13 @@ class Protocol(models.Model):
                     row[2].text = str(j.extra_num)
                     row[3].text = str(j.summa)
             document.add_paragraph()
-            p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
-                                                  '  _______________      А.А. Кулмырзаев ', style='style')
+            try:
+                m = Manager.objects.get(year=datetime.datetime.now().year)
+                p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
+                                                      '  _______________     %s ' % m.rektor, style='style')
+            except:
+                p3 = document.add_paragraph().add_run('Гранттык комиссиянын төрагасы   '
+                                                      '  _______________      ', style='style')
             document.add_page_break()
         document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s.docx' % self.tour.slug)
         self.protocol = '/media/protocol_%s.docx' % self.tour.slug
@@ -204,7 +209,7 @@ class Protocol(models.Model):
                 u'Грантовая комиссия на основе конкурсного отбора абитуриентов в рамках отдельных '
                 u' категорий, в соответствии с количеством мест утверждённых Протоколом № __ июля ____ г.'
                 u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по %s '
-                u' «%s» следующих абитуриентов:' %(t,i.name_ru), style='style')
+                u' «%s» следующих абитуриентов:' % (t, i.name_ru), style='style')
             p3 = document.add_paragraph().add_run(u'-выпускники г. Бишкек (выделено мест) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -279,8 +284,14 @@ class Protocol(models.Model):
                     row[2].text = str(j.extra_num)
                     row[3].text = str(j.summa)
             document.add_paragraph()
-            p3 = document.add_paragraph().add_run('Председатель грантовой комиссии, профессор '
-                                                  '  _______________      А.А. Кулмырзаев ', style='style')
+            try:
+                m = Manager.objects.get(year=datetime.datetime.now().year)
+                p3 = document.add_paragraph().add_run('Председатель грантовой комиссии, профессор '
+                                                      '  _______________      %s ' % m.rektor, style='style')
+            except:
+                p3 = document.add_paragraph().add_run('Председатель грантовой комиссии, профессор '
+                                                      '  _______________       ', style='style')
+
             document.add_page_break()
         document.save(settings.BASE_DIR + u'/static_in_env/media_root/protocol_%s_ru.docx' % self.tour.slug)
         self.file = '/media/protocol_%s_ru.docx' % self.tour.slug
@@ -471,7 +482,11 @@ class Otchet(models.Model):
         worksheet.write('P%s' % (m + 6), olimpiadniki.count(), cell_format_name)
         worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), olimpiadniki.count(), cell_format_name)
         worksheet.merge_range('C%s:G%s' % (m + 8, m + 8), 'Гранттык комиссиянын жоопту катчысы', cell_format_manager)
-        worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), 'Бактыбек Исаков', cell_format_manager)
+        try:
+            s = Manager.objects.get(year=datetime.datetime.now().year)
+            worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), s.katchy, cell_format_manager)
+        except:
+            worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), '', cell_format_manager)
         worksheet.merge_range('C%s:G%s' % (m + 10, m + 10), 'Гранттык комиссиянын техникалык катчысы',
                               cell_format_manager)
         worksheet.merge_range('H%s:J%s' % (m + 10, m + 10),
@@ -836,7 +851,11 @@ class OtchetLgotnik(models.Model):
         worksheet.write('P%s' % (m + 6), olimpiadniki.count(), cell_format_name)
         worksheet.merge_range('N%s:O%s' % (m + 6, m + 6), olimpiadniki.count(), cell_format_name)
         worksheet.merge_range('C%s:G%s' % (m + 8, m + 8), 'Гранттык комиссиянын жоопту катчысы', cell_format_manager)
-        worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), 'Бактыбек Исаков', cell_format_manager)
+        try:
+            s = Manager.objects.get(year=datetime.datetime.now().year)
+            worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), s.katchy, cell_format_manager)
+        except:
+            worksheet.merge_range('H%s:J%s' % (m + 8, m + 8), '', cell_format_manager)
         worksheet.merge_range('C%s:G%s' % (m + 10, m + 10), 'Гранттык комиссиянын техникалык катчысы',
                               cell_format_manager)
         c = -1
@@ -942,3 +961,16 @@ class OtchetLgotnik(models.Model):
         workbook.close()
         self.file = '/media/otchet_%s_%s_%s.xlsx' % (tour.slug, lgotnik.id, self.date)
         super(OtchetLgotnik, self).save()
+
+
+class Manager(models.Model):
+    class Meta:
+        verbose_name = 'Управление'
+        verbose_name_plural = 'Управление'
+
+    rektor = models.CharField(max_length=100)
+    katchy = models.CharField(max_length=100)
+    year = models.CharField(max_length=4)
+
+    def __unicode__(self):
+        return self.rektor
