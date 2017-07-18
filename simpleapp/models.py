@@ -25,6 +25,7 @@ class Faculty(models.Model):
         verbose_name_plural = 'Отделения'
 
     name = models.CharField(max_length=100, verbose_name='Отделение')
+    name_ru = models.CharField(max_length=100, verbose_name='Отделение RU', null=True, blank=True)
     slug = models.SlugField(max_length=100)
     lessons = models.ManyToManyField('Lesson', verbose_name='Предметы')
     quota = models.IntegerField(default=0, verbose_name='Квота')
@@ -185,10 +186,10 @@ class Protocol(models.Model):
             p.add_run(u'«Об утверждении списков абитуриентов, рекомендованных к зачислению»', style='style').bold = True
             p1.add_run(u'«__» __ ____-года', style='style')
             p2 = document.add_paragraph().add_run(
-                u'Грантовая комиссия на основе конкурсного отбора абитуриентов в рамках отдельных'
-                u'категорий, в соответствии с количеством мест утверждённых Протоколом № __ июля ____ г.'
-                u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по специальности'
-                u' «%s» следующих абитуриентов:' % i.name, style='style')
+                u'Грантовая комиссия на основе конкурсного отбора абитуриентов в рамках отдельных '
+                u' категорий, в соответствии с количеством мест утверждённых Протоколом № __ июля ____ г.'
+                u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по специальности '
+                u' «%s» следующих абитуриентов:' % i.name_ru, style='style')
             p3 = document.add_paragraph().add_run(u'-выпускники г. Бишкек (выделено мест) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -414,7 +415,7 @@ class Otchet(models.Model):
             worksheet.write('U%s' % str(counter), i.summa, cell_format_name)
             worksheet.write('A%s' % str(counter), counter - 6, cell_format_name)
         m += 6
-        worksheet.write('B%s' % (m + 3), u'Всего', cell_format_name)
+        worksheet.write('B%s' % (m + 3), u'Жалпы', cell_format_name)
         worksheet.write('C%s' % (m + 3), alumnis.count(), cell_format_name)
         worksheet.write('D%s' % (m + 5), u'Квота', cell_format_name)
         worksheet.merge_range('B%s:C%s' % (m + 5, m + 5), u'Шаар', cell_format_name)
