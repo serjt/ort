@@ -87,7 +87,7 @@ class Protocol(models.Model):
                       style='style').bold = True
             p1 = document.add_paragraph()
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.add_run(u'№ 3-Протокол', style='style').bold = True
+            p.add_run(u'№ _-Протокол', style='style').bold = True
             t = ''
             if i.spec == 'Направление':
                 t = 'багыты'
@@ -95,7 +95,7 @@ class Protocol(models.Model):
                 t = 'адистиги'
             p1.add_run(u'«__» __ ____-жыл', style='style')
             p2 = document.add_paragraph().add_run(
-                u'___-жылдын, __-июлундагы № 2-Протокол менен бекитилген '
+                u'___-жылдын, __-июлундагы № _-Протокол менен бекитилген '
                 u'орундардын санына ылайык айрым категориялардын чектеринде абитуриенттерди конкурстук'
                 u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
                 u'%s боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % (i.name,t), style='style')
@@ -189,7 +189,7 @@ class Protocol(models.Model):
         for i in dep:
             p = document.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.add_run(u'« Протокол № ___3___ » ',
+            p.add_run(u'« Протокол № ___ » ',
                       style='style').bold = True
             p1 = document.add_paragraph()
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
