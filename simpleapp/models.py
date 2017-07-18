@@ -69,6 +69,8 @@ class Protocol(models.Model):
     tour = models.ForeignKey(Tour, verbose_name='Тур')
     protocol = models.FileField(upload_to=file_upload_to, null=True, blank=True, verbose_name='Файл')
     file = models.FileField(upload_to=file_upload_to, null=True, blank=True, verbose_name='Файл RU')
+    number = models.IntegerField(default=0, verbose_name='Номер протокола', null=True)
+    number1 = models.IntegerField(default=0, verbose_name='Утвержденный номер', null=True)
     date = models.DateField(auto_now=True, verbose_name='Дата')
 
     def save(self, *args, **kwargs):
@@ -87,18 +89,22 @@ class Protocol(models.Model):
                       style='style').bold = True
             p1 = document.add_paragraph()
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.add_run(u'№ _-Протокол', style='style').bold = True
+            p.add_run(u'№ %s-Протокол' % str(self.number), style='style').bold = True
             t = ''
             if i.spec == 'Направление':
                 t = 'багыты'
             else:
                 t = 'адистиги'
-            p1.add_run(u'«__» __ ____-жыл', style='style')
-            p2 = document.add_paragraph().add_run(
-                u'___-жылдын, __-июлундагы № _-Протокол менен бекитилген '
+            p1.add_run(u'«%s» %s %s-жыл' % (self.tour.final.day, 'июль', self.tour.final.year), style='style')
+
+            p2 = document.add_paragraph()
+            p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            p2.add_run(
+                u'%s-жылдын, %s-июлундагы № %s-Протокол менен бекитилген '
                 u'орундардын санына ылайык айрым категориялардын чектеринде абитуриенттерди конкурстук'
                 u' тандоонун негизинде Гранттык комиссия Кыргыз-Түрк «Манас» университетине «%s» '
-                u'%s боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:' % (i.name, t), style='style')
+                u'%s боюнча абитуриенттерди кабыл алууга сунуштоо чечимин чыгарды:'
+                % (self.tour.final.year, self.tour.final.day, str(self.number1), i.name, t), style='style')
             p3 = document.add_paragraph().add_run(u'- Бишкек ш. бүтүрүүчүлөрү (бөлүнгөн орундар) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
@@ -194,7 +200,7 @@ class Protocol(models.Model):
         for i in dep:
             p = document.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.add_run(u'« Протокол № ___ » ',
+            p.add_run(u'« Протокол № %s » ' % str(self.number),
                       style='style').bold = True
             p1 = document.add_paragraph()
             p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -204,12 +210,15 @@ class Protocol(models.Model):
             else:
                 t = 'специальности'
             p.add_run(u'«Об утверждении списков абитуриентов, рекомендованных к зачислению»', style='style').bold = True
-            p1.add_run(u'«__» __ ____-года', style='style')
-            p2 = document.add_paragraph().add_run(
+            p1.add_run(u'«%s» %s %s-года' % (self.tour.final.day, 'июль', self.tour.final.year), style='style')
+            p2 = document.add_paragraph()
+            p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            p2.add_run(
                 u'Грантовая комиссия на основе конкурсного отбора абитуриентов в рамках отдельных '
-                u' категорий, в соответствии с количеством мест утверждённых Протоколом № __ июля ____ г.'
+                u' категорий, в соответствии с количеством мест утверждённых Протоколом № %s %s июля %s г.'
                 u' решила рекомендовать к зачислению в Кыргызско-Турецкий Университет «Манас» по %s '
-                u' «%s» следующих абитуриентов:' % (t, i.name_ru), style='style')
+                u' «%s» следующих абитуриентов:' % (
+                str(self.number1), str(self.tour.final.day), str(self.tour.final.year), t, i.name_ru), style='style')
             p3 = document.add_paragraph().add_run(u'-выпускники г. Бишкек (выделено мест) ', style='style')
             alumnis = Alumni.objects.filter(tour=self.tour, passed=True, faculty=i).order_by('-summa')
             table = document.add_table(rows=1, cols=4, style='Table Grid')
